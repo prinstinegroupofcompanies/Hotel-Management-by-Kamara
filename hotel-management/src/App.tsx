@@ -10,6 +10,9 @@ import Payments from "./pages/Payment";
 import StaffManagement from "./pages/StaffManagement";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Login from "./pages/Login";
+import Analytics from "./pages/Analytics";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 
 export const App = () => {
   return (
@@ -25,6 +28,9 @@ export const App = () => {
           <Route path="/Housekeeping" element={<Housekeeping />} />
           <Route path="/Payments" element={<Payments />} />
           <Route path="/StaffManagement" element={<StaffManagement />} />
+          <Route path="/Analytics" element={<Analytics />} />
+          <Route path="/Reports" element={<Reports />} />
+          <Route path="/Settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
 

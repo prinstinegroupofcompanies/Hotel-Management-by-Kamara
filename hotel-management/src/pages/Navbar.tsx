@@ -99,10 +99,35 @@ const Navbar = ({ children }: NavbarProps) => {
             </li>
             <li>
               <Link
+                to="/Analytics"
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
+              >
+                <span>⚙️</span> {!collapsed && <span>Analytics</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/Reports"
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
+              >
+                <span>⚙️</span> {!collapsed && <span>Reports</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/settings"
                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
               >
                 <span>⚙️</span> {!collapsed && <span>Settings</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/Login"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
+              >
+                <i className="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
               </Link>
             </li>
           </ul>
