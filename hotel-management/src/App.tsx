@@ -31,8 +31,8 @@ export const App = () => {
           <Route path="/Analytics" element={<Analytics />} />
           <Route path="/Reports" element={<Reports />} />
           <Route path="/Settings" element={<Settings />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
 
           <Route
             path="*"

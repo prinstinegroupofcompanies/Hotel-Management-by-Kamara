@@ -25,7 +25,7 @@ const Navbar = ({ children }: NavbarProps) => {
           <ul className="space-y-2 px-3">
             <li>
               <Link
-                to="/"
+                to="/Dashboard"
                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
               >
                 <span>📊</span> {!collapsed && <span>Dashboard</span>}

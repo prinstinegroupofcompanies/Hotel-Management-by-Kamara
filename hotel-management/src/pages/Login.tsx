@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault();
 
     if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-      localStorage.setItem("hotelAuth", "true");
+      localStorage.setItem("Prinstinegroup", "true");
 
       navigate("/Dashboard");
     } else {
