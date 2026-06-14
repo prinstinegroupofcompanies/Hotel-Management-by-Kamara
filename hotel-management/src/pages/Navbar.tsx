@@ -67,7 +67,7 @@ const Navbar = ({ children }: NavbarProps) => {
             </li>
             <li>
               <Link
-                to="/reservations"
+                to="/Housekeeping"
                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
               >
                 <span>📅</span> {!collapsed && <span>Housekeeping</span>}
@@ -91,10 +91,10 @@ const Navbar = ({ children }: NavbarProps) => {
             </li>
             <li>
               <Link
-                to="/reports"
+                to="/StaffManagement"
                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
               >
-                <span>📈</span> {!collapsed && <span>Reports</span>}
+                <span>📈</span> {!collapsed && <span>Staff Management</span>}
               </Link>
             </li>
             <li>

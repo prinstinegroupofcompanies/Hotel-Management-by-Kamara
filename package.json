@@ -1,0 +1,10 @@
+{
+  "name": "hotel-management-root",
+  "private": true,
+  "scripts": {
+    "dev": "cd hotel-management && npm run dev",
+    "build": "cd hotel-management && npm run build",
+    "preview": "cd hotel-management && npm run preview",
+    "lint": "cd hotel-management && npm run lint"
+  }
+}
