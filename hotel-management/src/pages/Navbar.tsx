@@ -123,7 +123,7 @@ const Navbar = ({ children }: NavbarProps) => {
             </li>
             <li>
               <Link
-                to="/Login"
+                to="/"
                 className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
               >
                 <i className="fa-solid fa-right-from-bracket"></i>
