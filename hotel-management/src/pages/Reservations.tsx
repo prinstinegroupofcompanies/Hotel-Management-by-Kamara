@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Navber from "../pages/Navbar";
 import Navbar from "../pages/Navbar";
 
 interface Reservation {
