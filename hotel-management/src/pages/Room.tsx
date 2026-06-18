@@ -16,14 +16,14 @@ const Room = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const rooms: Room[] = [
+  const initialRooms: Room[] = [
     {
       id: 1,
       roomNumber: "101",
       category: "Standard",
       floor: 1,
       capacity: 2,
-      price: 80,
+      price: 50,
       status: "Available",
     },
     {
@@ -32,30 +32,64 @@ const Room = () => {
       category: "Deluxe",
       floor: 1,
       capacity: 3,
-      price: 150,
+      price: 80,
       status: "Occupied",
-      guest: "John Doe",
-    },
-    {
-      id: 3,
-      roomNumber: "201",
-      category: "Executive Suite",
-      floor: 2,
-      capacity: 4,
-      price: 250,
-      status: "Reserved",
-      guest: "Sarah Johnson",
-    },
-    {
-      id: 4,
-      roomNumber: "301",
-      category: "Presidential Suite",
-      floor: 3,
-      capacity: 6,
-      price: 500,
-      status: "Maintenance",
+      guest: "Jane Doe",
     },
   ];
+
+  const [rooms, setRooms] = useState<Room[]>(initialRooms);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  {
+    /* Delete Function */
+  }
+
+  const handleDelete = (id: number) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this room?",
+    );
+
+    if (confirmDelete) {
+      setRooms(rooms.filter((room) => room.id !== id));
+    }
+  };
+
+  {
+    /* View Function */
+  }
+
+  const handleView = (room: Room) => {
+    setSelectedRoom(room);
+    setShowViewModal(true);
+  };
+
+  {
+  }
+
+  /* Edit Function */
+  const handleEdit = (room: Room) => {
+    setSelectedRoom(room);
+    setShowEditModal(true);
+  };
+
+  /* Edit Function */
+
+  const handleUpdateRoom = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedRoom) {
+      return;
+    }
+
+    setRooms(
+      rooms.map((room) => (room.id === selectedRoom.id ? selectedRoom : room)),
+    );
+
+    setShowEditModal(false);
+  };
 
   const filteredRooms = rooms.filter((room) => {
     const matchesSearch =
@@ -198,21 +232,151 @@ const Room = () => {
 
                   <td className="p-4">
                     <div className="flex gap-2">
-                      <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                      <button
+                        onClick={() => handleView(room)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded"
+                      >
                         View
                       </button>
 
-                      <button className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+                      <button
+                        onClick={() => handleEdit(room)}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      >
                         Edit
                       </button>
 
-                      <button className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                      <button
+                        onClick={() => handleDelete(room.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
                         Delete
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+
+              {/* View Modal popup */}
+
+              {showViewModal && selectedRoom && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-lg w-[500px]">
+                    <h2 className="text-2xl font-bold mb-4">Room Details</h2>
+
+                    <div className="space-y-3">
+                      <p>
+                        <strong>Room Number:</strong> {selectedRoom.roomNumber}
+                      </p>
+
+                      <p>
+                        <strong>Category:</strong> {selectedRoom.category}
+                      </p>
+
+                      <p>
+                        <strong>Price:</strong> ${selectedRoom.price}
+                      </p>
+
+                      <p>
+                        <strong>Status:</strong> {selectedRoom.status}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 text-right">
+                      <button
+                        onClick={() => setShowViewModal(false)}
+                        className="bg-gray-600 text-white px-4 py-2 rounded"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Edit Modal popup */}
+
+              {showEditModal && selectedRoom && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-lg w-[600px]">
+                    <h2 className="text-2xl font-bold mb-4">Edit Room</h2>
+
+                    <form onSubmit={handleUpdateRoom} className="space-y-4">
+                      <input
+                        type="text"
+                        value={selectedRoom.roomNumber}
+                        onChange={(e) =>
+                          setSelectedRoom({
+                            ...selectedRoom,
+                            roomNumber: e.target.value,
+                          })
+                        }
+                        className="w-full border p-3 rounded"
+                      />
+
+                      <select
+                        value={selectedRoom.category}
+                        onChange={(e) =>
+                          setSelectedRoom({
+                            ...selectedRoom,
+                            category: e.target.value,
+                          })
+                        }
+                        className="w-full border p-3 rounded"
+                      >
+                        <option>Standard</option>
+                        <option>Deluxe</option>
+                        <option>Executive Suite</option>
+                        <option>Presidential Suite</option>
+                      </select>
+
+                      <input
+                        type="number"
+                        value={selectedRoom.price}
+                        onChange={(e) =>
+                          setSelectedRoom({
+                            ...selectedRoom,
+                            price: Number(e.target.value),
+                          })
+                        }
+                        className="w-full border p-3 rounded"
+                      />
+
+                      <select
+                        value={selectedRoom.status}
+                        onChange={(e) =>
+                          setSelectedRoom({
+                            ...selectedRoom,
+                            status: e.target.value as Room["status"],
+                          })
+                        }
+                        className="w-full border p-3 rounded"
+                      >
+                        <option>Available</option>
+                        <option>Occupied</option>
+                        <option>Maintenance</option>
+                      </select>
+
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowEditModal(false)}
+                          className="px-5 py-2 bg-gray-500 text-white rounded"
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="submit"
+                          className="px-5 py-2 bg-green-600 text-white rounded"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
               {filteredRooms.length === 0 && (
                 <tr>
