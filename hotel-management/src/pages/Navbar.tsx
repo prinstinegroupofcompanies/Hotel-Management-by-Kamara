@@ -15,7 +15,10 @@ const Navbar = ({ children }: NavbarProps) => {
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-700">
           {!collapsed && (
-            <h1 className="text-xl font-bold"> Prinstine Group </h1>
+            <h1 className="text-xl font-bold">
+              {" "}
+              Prinstine Group of Companies{" "}
+            </h1>
           )}
           <button onClick={() => setCollapsed(!collapsed)} className="text-xl">
             ☰
