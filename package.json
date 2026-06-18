@@ -1,6 +1,9 @@
 {
   "name": "hotel-management-root",
   "private": true,
+  "workspaces": [
+    "hotel-management"
+  ],
   "scripts": {
     "dev": "cd hotel-management && npm run dev",
     "build": "cd hotel-management && npm run build",
