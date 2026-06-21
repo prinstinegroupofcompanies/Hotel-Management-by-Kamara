@@ -13,7 +13,7 @@ const Login = () => {
   const DEMO_USERNAME = "Prinstinegroup";
   const DEMO_PASSWORD = "Prinstinegroup123";
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
