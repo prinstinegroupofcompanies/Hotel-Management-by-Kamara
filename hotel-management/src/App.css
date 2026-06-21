@@ -182,3 +182,13 @@
     border-right-color: var(--border);
   }
 }
+
+/* Login Page Styles */
+
+.Left-Side {
+  background-image: url('./assets/images/hotel.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}

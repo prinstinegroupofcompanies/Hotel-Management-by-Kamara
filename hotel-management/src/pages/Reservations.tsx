@@ -5,61 +5,89 @@ interface Reservation {
   id: string;
   guestName: string;
   email: string;
+  paymentStatus: "Paid" | "Pending" | "Partial" | "Balance";
   roomNumber: string;
   roomType: string;
-  checkIn: string;
-  checkOut: string;
   guests: number;
   amount: number;
-  paymentStatus: "Paid" | "Pending" | "Partial";
-  bookingStatus: "Confirmed" | "Pending" | "Checked In" | "Cancelled";
+  checkInDate: string;
+  checkOutDate: string;
+  bookingStatus:
+    | "Confirmed"
+    | "Pending"
+    | "Checked In"
+    | "Checked Out"
+    | "Cancelled";
 }
 
+type ReservationForm = Omit<Reservation, "id">;
+
+const initialReservations: Reservation[] = [
+  {
+    id: "BK-1001",
+    guestName: "John Doe",
+    email: "john@example.com",
+    roomNumber: "101",
+    roomType: "Deluxe",
+    checkInDate: "2026-06-15",
+    checkOutDate: "2026-06-18",
+    guests: 2,
+    amount: 450,
+    paymentStatus: "Paid",
+    bookingStatus: "Confirmed",
+  },
+  {
+    id: "BK-1002",
+    guestName: "Sarah Johnson",
+    email: "sarah@example.com",
+    roomNumber: "205",
+    roomType: "Executive Suite",
+    checkInDate: "2026-06-16",
+    checkOutDate: "2026-06-20",
+    guests: 3,
+    amount: 1200,
+    paymentStatus: "Pending",
+    bookingStatus: "Pending",
+  },
+  {
+    id: "BK-1003",
+    guestName: "Michael Brown",
+    email: "michael@example.com",
+    roomNumber: "310",
+    roomType: "Standard",
+    checkInDate: "2026-06-14",
+    checkOutDate: "2026-06-17",
+    guests: 1,
+    amount: 240,
+    paymentStatus: "Partial",
+    bookingStatus: "Checked In",
+  },
+];
+
 const Reservations = () => {
+  const [reservations, setReservations] =
+    useState<Reservation[]>(initialReservations);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedReservation, setSelectedReservation] =
+    useState<Reservation | null>(null);
+  const [newReservation, setNewReservation] = useState<ReservationForm>({
+    guestName: "",
+    email: "",
+    roomNumber: "",
+    paymentStatus: "Pending",
+    roomType: "",
+    guests: 1,
+    checkInDate: "",
+    checkOutDate: "",
+    bookingStatus: "Pending",
+    amount: 0,
+  });
+
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-
-  const reservations: Reservation[] = [
-    {
-      id: "BK-1001",
-      guestName: "John Doe",
-      email: "john@example.com",
-      roomNumber: "101",
-      roomType: "Deluxe",
-      checkIn: "2026-06-15",
-      checkOut: "2026-06-18",
-      guests: 2,
-      amount: 450,
-      paymentStatus: "Paid",
-      bookingStatus: "Confirmed",
-    },
-    {
-      id: "BK-1002",
-      guestName: "Sarah Johnson",
-      email: "sarah@example.com",
-      roomNumber: "205",
-      roomType: "Executive Suite",
-      checkIn: "2026-06-16",
-      checkOut: "2026-06-20",
-      guests: 3,
-      amount: 1200,
-      paymentStatus: "Pending",
-      bookingStatus: "Pending",
-    },
-    {
-      id: "BK-1003",
-      guestName: "Michael Brown",
-      email: "michael@example.com",
-      roomNumber: "310",
-      roomType: "Standard",
-      checkIn: "2026-06-14",
-      checkOut: "2026-06-17",
-      guests: 1,
-      amount: 240,
-      paymentStatus: "Partial",
-      bookingStatus: "Checked In",
-    },
-  ];
+  const [filterRooms, setFilterRooms] = useState("All");
 
   const filteredReservations = reservations.filter((reservation) => {
     const matchesSearch =
@@ -69,7 +97,10 @@ const Reservations = () => {
     const matchesStatus =
       filterStatus === "All" || reservation.bookingStatus === filterStatus;
 
-    return matchesSearch && matchesStatus;
+    const matchesRooms =
+      filterRooms === "All" || reservation.roomType === filterRooms;
+
+    return matchesSearch && matchesStatus && matchesRooms;
   });
 
   const getBookingStatusColor = (status: string) => {
@@ -95,6 +126,8 @@ const Reservations = () => {
         return "bg-red-100 text-red-700";
       case "Partial":
         return "bg-yellow-100 text-yellow-700";
+      case "balance":
+        return "bg-blue-100 text-yellow-700";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -102,169 +135,634 @@ const Reservations = () => {
 
   return (
     <Navbar>
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">
-            Reservations & Bookings
-          </h1>
-          <p className="text-gray-500">
-            Manage hotel reservations and bookings.
-          </p>
-        </div>
+      <div className=" ">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Reservations & Bookings
+            </h1>
+            <p className="text-gray-500">
+              Manage hotel reservations and bookings.
+            </p>
+          </div>
 
-        <button className="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition">
-          + New Reservation
-        </button>
-      </div>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow p-6">
-          <h3 className="text-gray-500">Total Reservations</h3>
-          <p className="text-3xl font-bold mt-2">1,248</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow p-6">
-          <h3 className="text-gray-500">Confirmed</h3>
-          <p className="text-3xl font-bold text-green-600 mt-2">862</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow p-6">
-          <h3 className="text-gray-500">Pending</h3>
-          <p className="text-3xl font-bold text-yellow-500 mt-2">241</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow p-6">
-          <h3 className="text-gray-500">Today's Check-Ins</h3>
-          <p className="text-3xl font-bold text-blue-600 mt-2">58</p>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6">
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Search reservation..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-3"
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800"
           >
-            <option value="All">All Status</option>
-            <option value="Confirmed">Confirmed</option>
-            <option value="Pending">Pending</option>
-            <option value="Checked In">Checked In</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Reservation Table */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <div className="p-5 border-b">
-          <h2 className="text-xl font-semibold">Reservation List</h2>
+            + New Reservation
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-4">Booking ID</th>
-                <th className="text-left p-4">Guest</th>
-                <th className="text-left p-4">Room</th>
-                <th className="text-left p-4">Stay Period</th>
-                <th className="text-left p-4">Guests</th>
-                <th className="text-left p-4">Amount</th>
-                <th className="text-left p-4">Payment</th>
-                <th className="text-left p-4">Status</th>
-                <th className="text-left p-4">Actions</th>
-              </tr>
-            </thead>
+        {/* Reservation popup form */}
 
-            <tbody>
-              {filteredReservations.map((reservation) => (
-                <tr key={reservation.id} className="border-t hover:bg-gray-50">
-                  <td className="p-4 font-medium">{reservation.id}</td>
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+            <div className="bg-white rounded-xl shadow-xl w-[750px] max-h-[90vh] overflow-y-auto">
+              {/* Header */}
 
-                  <td className="p-4">
-                    <div>
-                      <p className="font-semibold">{reservation.guestName}</p>
-                      <p className="text-sm text-gray-500">
-                        {reservation.email}
-                      </p>
-                    </div>
-                  </td>
+              <div className="flex justify-between items-center border-b p-5">
+                <h2 className="text-2xl font-bold">New Reservation</h2>
 
-                  <td className="p-4">
-                    <div>
-                      <p>{reservation.roomNumber}</p>
-                      <p className="text-sm text-gray-500">
-                        {reservation.roomType}
-                      </p>
-                    </div>
-                  </td>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
 
-                  <td className="p-4">
-                    <div className="text-sm">
-                      <p>{reservation.checkIn}</p>
-                      <p className="text-gray-500">to {reservation.checkOut}</p>
-                    </div>
-                  </td>
+              <form
+                className="p-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
 
-                  <td className="p-4">{reservation.guests}</td>
+                  setReservations([
+                    ...reservations,
+                    {
+                      id: Date.now().toString(),
+                      ...newReservation,
+                    },
+                  ]);
 
-                  <td className="p-4 font-semibold">${reservation.amount}</td>
+                  setShowCreateModal(false);
 
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${getPaymentStatusColor(
-                        reservation.paymentStatus,
-                      )}`}
+                  setNewReservation({
+                    guestName: "",
+                    email: "",
+                    roomNumber: "",
+                    paymentStatus: "Pending",
+                    roomType: "",
+                    guests: 1,
+                    checkInDate: "",
+                    checkOutDate: "",
+                    bookingStatus: "Pending",
+                    amount: 0,
+                  });
+                }}
+              >
+                <div className="grid grid-cols-2 gap-5">
+                  {/* Name */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Name</label>
+
+                    <input
+                      type="text"
+                      required
+                      className="w-full border rounded-lg p-3"
+                      placeholder="Full Name"
+                      value={newReservation.guestName}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          guestName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Email */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Email</label>
+
+                    <input
+                      type="email"
+                      required
+                      className="w-full border rounded-lg p-3"
+                      placeholder="Email Address"
+                      value={newReservation.email}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          email: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Room Number */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">
+                      Room Number
+                    </label>
+
+                    <select
+                      required
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.roomNumber}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          roomNumber: e.target.value,
+                        })
+                      }
                     >
-                      {reservation.paymentStatus}
-                    </span>
-                  </td>
+                      <option value="">Select Room</option>
+                      <option>101</option>
+                      <option>102</option>
+                      <option>103</option>
+                      <option>104</option>
+                      <option>201</option>
+                      <option>202</option>
+                      <option>301</option>
+                    </select>
+                  </div>
 
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${getBookingStatusColor(
-                        reservation.bookingStatus,
-                      )}`}
+                  {/* Room Type */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">
+                      Room Type
+                    </label>
+
+                    <select
+                      required
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.roomType}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          roomType: e.target.value,
+                        })
+                      }
                     >
-                      {reservation.bookingStatus}
-                    </span>
-                  </td>
+                      <option value="">Select Room Type</option>
+                      <option>Single Room</option>
+                      <option>Double Room</option>
+                      <option>Deluxe Room</option>
+                      <option>Executive Room</option>
+                      <option>Suite</option>
+                      <option>Family Room</option>
+                      <option>Presidential Suite</option>
+                    </select>
+                  </div>
 
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                        View
-                      </button>
+                  {/* Number of Guests */}
 
-                      <button className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">
-                        Edit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                  <div>
+                    <label className="block mb-2 font-semibold">
+                      Number of Guests
+                    </label>
 
-              {filteredReservations.length === 0 && (
+                    <input
+                      type="number"
+                      min={1}
+                      required
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.guests}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          guests: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Guest Amount */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Amount</label>
+
+                    <input
+                      type="number"
+                      required
+                      className="w-full border rounded-lg p-3"
+                      placeholder="Payment Amount"
+                      value={newReservation.amount}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          amount: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Check In */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">
+                      Check-In Date
+                    </label>
+
+                    <input
+                      type="date"
+                      required
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.checkInDate}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          checkInDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Check Out */}
+
+                  <div>
+                    <label className="block mb-2 font-semibold">
+                      Check-Out Date
+                    </label>
+
+                    <input
+                      type="date"
+                      required
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.checkOutDate}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          checkOutDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Booking Status */}
+
+                  <div className="col-span-2">
+                    <label className="block mb-2 font-semibold">
+                      Booking Status
+                    </label>
+
+                    <select
+                      className="w-full border rounded-lg p-3"
+                      value={newReservation.bookingStatus}
+                      onChange={(e) =>
+                        setNewReservation({
+                          ...newReservation,
+                          bookingStatus: e.target
+                            .value as Reservation["bookingStatus"],
+                        })
+                      }
+                    >
+                      <option>Pending</option>
+                      <option>Confirmed</option>
+                      <option>Checked In</option>
+                      <option>Checked Out</option>
+                      <option>Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer */}
+
+                <div className="flex justify-end gap-4 mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-5 py-3 rounded-lg bg-gray-500 text-white"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-5 py-3 rounded-lg bg-blue-700 text-white hover:bg-blue-800"
+                  >
+                    Save Reservation
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-gray-500">Total Reservations</h3>
+            <p className="text-3xl font-bold mt-2">1,248</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-gray-500">Confirmed</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">862</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-gray-500">Pending</h3>
+            <p className="text-3xl font-bold text-yellow-500 mt-2">241</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-gray-500">Today's Check-Ins</h3>
+            <p className="text-3xl font-bold text-blue-600 mt-2">58</p>
+          </div>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="bg-white rounded-xl shadow p-10  mb-6">
+          <div className=" flex md:grid-cols-2 gap-2">
+            <input
+              type="text"
+              placeholder="Search reservation..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-3 w-[50%]"
+            >
+              <option value="All">All Status</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Pending">Pending</option>
+              <option value="Checked In">Checked In</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <select
+              value={filterRooms}
+              onChange={(e) => setFilterRooms(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-3 w-[50%]"
+            >
+              <option value="All">All Rooms</option>
+              <option value="Standard">Standard</option>
+              <option value="Deluxe">Deluxe</option>
+              <option value="Suite">Suite</option>
+              <option value="Presidential">Presidential</option>
+            </select>
+            <button className="bg-gray-600 text-white  rounded-lg hover:bg-blue-800 transition w-[50%]">
+              Export
+            </button>
+          </div>
+        </div>
+
+        {/* View Reservation Modal */}
+
+        {showViewModal && selectedReservation && (
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+            <div className="bg-white rounded-xl p-6 w-[50%]">
+              <h2 className="text-2xl font-bold mb-5">Reservation Details</h2>
+
+              <p>
+                <strong>Guest:</strong> {selectedReservation.guestName}
+              </p>
+
+              <p>
+                <strong>Room:</strong> {selectedReservation.roomType}
+              </p>
+
+              <p>
+                <strong>Check In:</strong> {selectedReservation.checkInDate}
+              </p>
+
+              <p>
+                <strong>Check Out:</strong> {selectedReservation.checkOutDate}
+              </p>
+
+              <p>
+                <strong>Guests:</strong> {selectedReservation.guests}
+              </p>
+
+              <p>
+                <strong>Status:</strong> {selectedReservation.bookingStatus}
+              </p>
+
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="mt-5 bg-blue-700 text-white px-4 py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Edit Reservation Modal */}
+
+        {showEditModal && selectedReservation && (
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+            <div className="bg-white rounded-xl p-6 w-[650px]">
+              <h2 className="text-2xl font-bold mb-5">Edit Reservation</h2>
+
+              <input
+                className="w-full border p-3 rounded mb-3"
+                value={selectedReservation.guestName}
+                onChange={(e) =>
+                  setSelectedReservation({
+                    ...selectedReservation,
+
+                    guestName: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                className="w-full border p-3 rounded mb-3"
+                value={selectedReservation.roomType}
+                onChange={(e) =>
+                  setSelectedReservation({
+                    ...selectedReservation,
+                    roomType: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                type="date"
+                className="w-full border p-3 rounded mb-3"
+                value={selectedReservation.checkInDate}
+                onChange={(e) =>
+                  setSelectedReservation({
+                    ...selectedReservation,
+                    checkInDate: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                type="date"
+                className="w-full border p-3 rounded mb-3"
+                value={selectedReservation.checkOutDate}
+                onChange={(e) =>
+                  setSelectedReservation({
+                    ...selectedReservation,
+                    checkOutDate: e.target.value,
+                  })
+                }
+              />
+
+              <select
+                className="w-full border p-3 rounded mb-4"
+                value={selectedReservation.bookingStatus}
+                onChange={(e) =>
+                  setSelectedReservation({
+                    ...selectedReservation,
+                    bookingStatus: e.target
+                      .value as Reservation["bookingStatus"],
+                  })
+                }
+              >
+                <option>Pending</option>
+
+                <option>Confirmed</option>
+
+                <option>Checked In</option>
+
+                <option>Cancelled</option>
+              </select>
+
+              <button
+                className="bg-blue-500 text-white px-5 py-2 rounded"
+                onClick={() => {
+                  setReservations(
+                    reservations.map((reservation) =>
+                      reservation.id === selectedReservation.id
+                        ? selectedReservation
+                        : reservation,
+                    ),
+                  );
+
+                  setShowEditModal(false);
+                }}
+              >
+                Update Reservation
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reservation Table */}
+        <div className="bg-white rounded-xl shadow overflow-hidden  ">
+          <div className="p-5 border-b">
+            <h2 className="text-xl font-semibold">Reservation List</h2>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td colSpan={9} className="text-center p-8 text-gray-500">
-                    No reservations found.
-                  </td>
+                  <th className="text-left p-2">Booking ID</th>
+                  <th className="text-left p-2">Guest</th>
+                  <th className="text-left p-2">Room</th>
+                  <th className="text-left p-2">Stay Period</th>
+                  <th className="text-left p-2">Guests</th>
+                  <th className="text-left p-2">Amount</th>
+                  <th className="text-left p-2">Payment</th>
+                  <th className="text-left p-2">Status</th>
+                  <th className="text-left p-2">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {filteredReservations.map((reservation) => (
+                  <tr
+                    key={reservation.id}
+                    className="border-t hover:bg-gray-50"
+                  >
+                    <td className="p-2 font-medium">{reservation.id}</td>
+
+                    <td className="p-2">
+                      <div>
+                        <p className="font-semibold">{reservation.guestName}</p>
+                        <p className="text-sm text-gray-500">
+                          {reservation.email}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="p-2">
+                      <div>
+                        <p>{reservation.roomNumber}</p>
+                        <p className="text-sm text-gray-500">
+                          {reservation.roomType}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="p-2">
+                      <div className="text-sm">
+                        <p>{reservation.checkInDate}</p>
+                        <p className="text-gray-500">
+                          to {reservation.checkOutDate}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="p-2">{reservation.guests}</td>
+
+                    <td className="p-2 font-semibold">${reservation.amount}</td>
+
+                    <td className="p-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${getPaymentStatusColor(
+                          reservation.paymentStatus,
+                        )}`}
+                      >
+                        {reservation.paymentStatus}
+                      </span>
+                    </td>
+
+                    <td className="p-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${getBookingStatusColor(
+                          reservation.bookingStatus,
+                        )}`}
+                      >
+                        {reservation.bookingStatus}
+                      </span>
+                    </td>
+
+                    <td className="p-2">
+                      <div className="flex gap-2">
+                        <button
+                          className="bg-blue-500 text-white px-3 py-1 rounded"
+                          onClick={() => {
+                            setSelectedReservation(reservation);
+                            setShowViewModal(true);
+                          }}
+                        >
+                          View
+                        </button>
+
+                        <button
+                          className="bg-yellow-500 text-white px-3 py-1 rounded"
+                          onClick={() => {
+                            setSelectedReservation({ ...reservation });
+                            setShowEditModal(true);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-3 py-1 rounded"
+                          onClick={() => {
+                            if (window.confirm("Delete Reservation?")) {
+                              setReservations(
+                                reservations.filter(
+                                  (item) => item.id !== reservation.id,
+                                ),
+                              );
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {filteredReservations.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="text-center p-8 text-gray-500">
+                      No reservations found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </Navbar>

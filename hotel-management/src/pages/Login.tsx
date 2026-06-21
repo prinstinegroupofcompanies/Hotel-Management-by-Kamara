@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import "../App.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,8 +28,8 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      <div className="hidden lg:flex w-1/2 bg-blue-700 text-white items-center justify-center p-10">
-        <div>
+      <div className=" Left-Side hidden lg:flex w-1/2  text-white items-center justify-center p-10">
+        <div className="bg-blue-300  p-10 rounded-lg text-center">
           <h1 className="text-5xl font-bold mb-6">
             Prinstine Hotel Management System
           </h1>

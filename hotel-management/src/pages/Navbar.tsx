@@ -8,7 +8,7 @@ interface NavbarProps {
 const Navbar = ({ children }: NavbarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   return (
-    <div className=" Navbar-element flex min-h-screen ">
+    <div className=" Navbar-element flex min-h-screen w-full">
       {/* Sidebar */}
       <aside
         className={`sticky top-0 h-screen flex flex-col bg-slate-900 text-white transition-all duration-300 ease-in-out ${collapsed ? "w-20" : "w-72"}`}
