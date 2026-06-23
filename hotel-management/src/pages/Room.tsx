@@ -62,15 +62,13 @@ const Room = () => {
     setShowViewModal(true);
   };
 
-  // View Function
-
-  /* Edit Function */
+  // Edit Function
   const handleEdit = (room: Room) => {
     setSelectedRoom(room);
     setShowEditModal(true);
   };
 
-  /* Edit Function */
+  // Update Room Function
 
   const handleUpdateRoom = (e: React.FormEvent) => {
     e.preventDefault();
