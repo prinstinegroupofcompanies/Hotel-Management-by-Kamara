@@ -66,8 +66,7 @@ const Room = () => {
     setShowViewModal(true);
   };
 
-  {
-  }
+  // View Function
 
   /* Edit Function */
   const handleEdit = (room: Room) => {
