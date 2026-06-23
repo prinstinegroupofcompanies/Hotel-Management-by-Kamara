@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../pages/Navbar";
+import Navbar from "./Navbar";
 
 interface RoomCategory {
   id: number;

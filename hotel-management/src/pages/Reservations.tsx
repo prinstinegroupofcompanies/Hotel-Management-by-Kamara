@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../pages/Navbar";
+import Navbar from "./Navbar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
