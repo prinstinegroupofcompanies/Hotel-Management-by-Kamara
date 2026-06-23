@@ -43,9 +43,7 @@ const Room = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  {
-    /* Delete Function */
-  }
+  // Delete Function
 
   const handleDelete = (id: number) => {
     const confirmDelete = window.confirm(
@@ -57,9 +55,7 @@ const Room = () => {
     }
   };
 
-  {
-    /* View Function */
-  }
+  // View Function
 
   const handleView = (room: Room) => {
     setSelectedRoom(room);
