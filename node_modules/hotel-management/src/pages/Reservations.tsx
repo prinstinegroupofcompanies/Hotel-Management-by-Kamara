@@ -105,9 +105,7 @@ const Reservations = () => {
     return matchesSearch && matchesStatus && matchesRooms;
   });
 
-  {
-    /* Statistics Formula */
-  }
+  // Statistics Formula
   const today = new Date().toISOString().split("T")[0];
 
   const totalReservations = reservations.length;
