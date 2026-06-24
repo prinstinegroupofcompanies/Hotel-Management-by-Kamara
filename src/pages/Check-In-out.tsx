@@ -6,6 +6,7 @@ interface GuestStay {
   guestName: string;
   roomNumber: string;
   roomType: string;
+  email: string;
   checkInDate: string;
   checkOutDate: string;
   status: "Pending Check-In" | "Checked In" | "Pending Check-Out";
@@ -18,6 +19,7 @@ const CheckInCheckout = () => {
     {
       id: "BK1001",
       guestName: "John Doe",
+      email: "john.doe@example.com",
       roomNumber: "101",
       roomType: "Deluxe Room",
       checkInDate: "2026-06-14",
@@ -27,6 +29,7 @@ const CheckInCheckout = () => {
     {
       id: "BK1002",
       guestName: "Sarah Johnson",
+      email: "sarah.johnson@example.com",
       roomNumber: "205",
       roomType: "Executive Suite",
       checkInDate: "2026-06-13",
@@ -36,6 +39,7 @@ const CheckInCheckout = () => {
     {
       id: "BK1003",
       guestName: "Michael Brown",
+      email: "michael.brown@example.com",
       roomNumber: "310",
       roomType: "Standard Room",
       checkInDate: "2026-06-10",
@@ -146,7 +150,12 @@ const CheckInCheckout = () => {
                 <tr key={stay.id} className="border-t hover:bg-gray-50">
                   <td className="p-4">{stay.id}</td>
 
-                  <td className="p-4">{stay.guestName}</td>
+                  <td className="p-4">
+                    <p>{stay.guestName}</p>
+                    <p className="text-sm text-gray-500 w-[100px] truncate">
+                      {stay.email}
+                    </p>
+                  </td>
 
                   <td className="p-4">
                     <div>

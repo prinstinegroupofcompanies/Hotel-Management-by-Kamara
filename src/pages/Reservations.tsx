@@ -622,6 +622,9 @@ const Reservations = () => {
               <p>
                 <strong>Status:</strong> {selectedReservation.bookingStatus}
               </p>
+              <p>
+                <strong>Email:</strong> {selectedReservation.email}
+              </p>
 
               <button
                 onClick={() => setShowViewModal(false)}
@@ -739,7 +742,9 @@ const Reservations = () => {
                   <th className="text-left p-2">Booking ID</th>
                   <th className="text-left p-2">Guest</th>
                   <th className="text-left p-2">Room</th>
-                  <th className="text-left p-2">Stay Period</th>
+                  <th className="text-left p-3 w-[10px] truncate">
+                    Stay Period
+                  </th>
                   <th className="text-left p-2">Guests</th>
                   <th className="text-left p-2">Amount</th>
                   <th className="text-left p-2">Payment</th>
@@ -759,7 +764,7 @@ const Reservations = () => {
                     <td className="p-2">
                       <div>
                         <p className="font-semibold">{reservation.guestName}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 w-[100px] truncate">
                           {reservation.email}
                         </p>
                       </div>
@@ -775,9 +780,9 @@ const Reservations = () => {
                     </td>
 
                     <td className="p-2">
-                      <div className="text-sm">
+                      <div className="text-sm w-[50px] truncate">
                         <p>{reservation.checkInDate}</p>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 w-[50px] truncate">
                           to {reservation.checkOutDate}
                         </p>
                       </div>

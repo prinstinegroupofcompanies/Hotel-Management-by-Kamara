@@ -33,9 +33,9 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-gray-500">Occupancy Rate</h3>
+          <h3 className="text-gray-500">Cancelled Payments</h3>
 
-          <p className="text-4xl font-bold text-orange-500 mt-2">80%</p>
+          <p className="text-4xl font-bold text-orange-500 mt-2">$1180</p>
         </div>
       </div>
 
