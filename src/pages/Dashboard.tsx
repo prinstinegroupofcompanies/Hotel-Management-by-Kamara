@@ -18,9 +18,9 @@ const Dashboard = () => {
 
     const monthlyRevenue = stays.reduce((sum, stay) => sum + stay.amount, 0);
 
-    const pendingPayments = stays.filter(
-      (stay) => stay.status === "Pending",
-    ).length;
+    const pendingPayments = initialReservations
+      .filter((reservation) => reservation.paymentStatus === "Pending")
+      .reduce((sum, reservation) => sum + reservation.amount, 0);
 
     const checkedInToday = stays.filter(
       (stay) => stay.status === "Checked In",
@@ -45,7 +45,6 @@ const Dashboard = () => {
       activeGuests: stays.length,
       checkedInToday,
       checkedOutToday,
-      reservations: initialReservations.length + stays.length,
     };
   }, [stays]);
 
@@ -121,7 +120,7 @@ const Dashboard = () => {
       </div>
 
       {/* Operational Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Active Guests</h3>
 
@@ -141,14 +140,6 @@ const Dashboard = () => {
 
           <p className="text-3xl font-bold text-purple-600">
             {dashboardStats.checkedOutToday}
-          </p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-gray-500">Reservations</h3>
-
-          <p className="text-3xl font-bold text-indigo-600">
-            {dashboardStats.reservations}
           </p>
         </div>
       </div>
