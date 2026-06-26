@@ -34,6 +34,10 @@ const Dashboard = () => {
       (reservation) => reservation.paymentStatus === "Balance",
     ).length;
 
+    const recentReservations = [...initialReservations]
+      .sort((a, b) => b.id.localeCompare(a.id))
+      .slice(0, 3);
+
     return {
       totalRooms,
       occupiedRooms,
@@ -45,6 +49,7 @@ const Dashboard = () => {
       activeGuests: stays.length,
       checkedInToday,
       checkedOutToday,
+      recentReservations,
     };
   }, [stays]);
 
@@ -166,38 +171,31 @@ const Dashboard = () => {
               </thead>
 
               <tbody>
-                <tr className="border-b">
-                  <td className="py-4">John Doe</td>
-                  <td>204</td>
-                  <td>14 Jun</td>
-                  <td>
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                      Confirmed
-                    </span>
-                  </td>
-                </tr>
-
-                <tr className="border-b">
-                  <td className="py-4">Sarah Johnson</td>
-                  <td>305</td>
-                  <td>14 Jun</td>
-                  <td>
-                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-                      Pending
-                    </span>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td className="py-4">Michael Brown</td>
-                  <td>112</td>
-                  <td>15 Jun</td>
-                  <td>
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                      Checked In
-                    </span>
-                  </td>
-                </tr>
+                {dashboardStats.recentReservations.map((reservation, index) => (
+                  <tr
+                    key={reservation.id}
+                    className={index === 2 ? "" : "border-b"}
+                  >
+                    <td className="py-4">{reservation.guestName}</td>
+                    <td>{reservation.roomNumber}</td>
+                    <td>{reservation.checkInDate}</td>
+                    <td>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          reservation.bookingStatus === "Confirmed"
+                            ? "bg-green-100 text-green-700"
+                            : reservation.bookingStatus === "Pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : reservation.bookingStatus === "Checked In"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {reservation.bookingStatus}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
