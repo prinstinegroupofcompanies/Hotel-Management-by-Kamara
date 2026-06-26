@@ -1,6 +1,54 @@
+import { useMemo } from "react";
+import { useHotel } from "../context/HotelContext";
 import Navbar from "./Navbar";
+import { initialReservations } from "../data/reservations";
 
 const Dashboard = () => {
+  const { stays } = useHotel();
+
+  const dashboardStats = useMemo(() => {
+    const totalRooms = 120;
+    const occupiedRooms = stays.length;
+    const availableRooms = totalRooms - occupiedRooms;
+
+    const today = new Date().toISOString().split("T")[0];
+    const todayRevenue = stays
+      .filter((stay) => stay.checkInDate === today)
+      .reduce((sum, stay) => sum + stay.amount, 0);
+
+    const monthlyRevenue = stays.reduce((sum, stay) => sum + stay.amount, 0);
+
+    const pendingPayments = stays.filter(
+      (stay) => stay.status === "Pending",
+    ).length;
+
+    const checkedInToday = stays.filter(
+      (stay) => stay.status === "Checked In",
+    ).length;
+
+    const checkedOutToday = stays.filter(
+      (stay) => stay.status === "Checked Out",
+    ).length;
+
+    const cancelledPayments = initialReservations.filter(
+      (reservation) => reservation.paymentStatus === "Balance",
+    ).length;
+
+    return {
+      totalRooms,
+      occupiedRooms,
+      availableRooms,
+      cancelledPayments,
+      todayRevenue,
+      monthlyRevenue,
+      pendingPayments,
+      activeGuests: stays.length,
+      checkedInToday,
+      checkedOutToday,
+      reservations: initialReservations.length + stays.length,
+    };
+  }, [stays]);
+
   return (
     <Navbar>
       {/* Page Header */}
@@ -17,25 +65,31 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Total Rooms</h3>
 
-          <p className="text-4xl font-bold mt-2">120</p>
+          <p className="text-4xl font-bold mt-2">{dashboardStats.totalRooms}</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Occupied Rooms</h3>
 
-          <p className="text-4xl font-bold text-green-600 mt-2">96</p>
+          <p className="text-4xl font-bold text-green-600 mt-2">
+            {dashboardStats.occupiedRooms}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Available Rooms</h3>
 
-          <p className="text-4xl font-bold text-blue-600 mt-2">24</p>
+          <p className="text-4xl font-bold text-blue-600 mt-2">
+            {dashboardStats.availableRooms}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Cancelled Payments</h3>
 
-          <p className="text-4xl font-bold text-orange-500 mt-2">$1180</p>
+          <p className="text-4xl font-bold text-orange-500 mt-2">
+            ${dashboardStats.cancelledPayments}
+          </p>
         </div>
       </div>
 
@@ -44,19 +98,25 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Today's Revenue</h3>
 
-          <p className="text-3xl font-bold text-green-600 mt-2">$4,250</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">
+            ${dashboardStats.todayRevenue.toLocaleString()}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Monthly Revenue</h3>
 
-          <p className="text-3xl font-bold mt-2">$84,500</p>
+          <p className="text-3xl font-bold mt-2">
+            ${dashboardStats.monthlyRevenue.toLocaleString()}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Pending Payments</h3>
 
-          <p className="text-3xl font-bold text-red-500 mt-2">$2,150</p>
+          <p className="text-3xl font-bold text-red-500 mt-2">
+            ${dashboardStats.pendingPayments.toLocaleString()}
+          </p>
         </div>
       </div>
 
@@ -65,25 +125,31 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Active Guests</h3>
 
-          <p className="text-3xl font-bold">156</p>
+          <p className="text-3xl font-bold">{dashboardStats.activeGuests}</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Check-Ins Today</h3>
 
-          <p className="text-3xl font-bold text-blue-600">28</p>
+          <p className="text-3xl font-bold text-blue-600">
+            {dashboardStats.checkedInToday}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Check-Outs Today</h3>
 
-          <p className="text-3xl font-bold text-purple-600">21</p>
+          <p className="text-3xl font-bold text-purple-600">
+            {dashboardStats.checkedOutToday}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Reservations</h3>
 
-          <p className="text-3xl font-bold text-indigo-600">45</p>
+          <p className="text-3xl font-bold text-indigo-600">
+            {dashboardStats.reservations}
+          </p>
         </div>
       </div>
 

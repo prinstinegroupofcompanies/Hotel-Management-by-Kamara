@@ -1,70 +1,11 @@
-import { useState } from "react";
+import { useHotel } from "../context/HotelContext";
+import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-
-interface Reservation {
-  id: string;
-  guestName: string;
-  email: string;
-  roomNumber: string;
-  roomType: string;
-  guests: number;
-  amount: number;
-  checkInDate: string;
-  checkOutDate: string;
-  paymentStatus: "Paid" | "Pending" | "Partial" | "Balance";
-  bookingStatus:
-    | "Confirmed"
-    | "Pending"
-    | "Checked In"
-    | "Checked Out"
-    | "Cancelled";
-}
+import { initialReservations, type Reservation } from "../data/reservations";
 
 type ReservationForm = Omit<Reservation, "id">;
-
-const initialReservations: Reservation[] = [
-  {
-    id: "BK-1001",
-    guestName: "John Doe",
-    email: "john@example.com",
-    roomNumber: "101",
-    roomType: "Deluxe",
-    checkInDate: "2026-06-15",
-    checkOutDate: "2026-06-18",
-    guests: 2,
-    amount: 450,
-    paymentStatus: "Paid",
-    bookingStatus: "Confirmed",
-  },
-  {
-    id: "BK-1002",
-    guestName: "Sarah Johnson",
-    email: "sarah@example.com",
-    roomNumber: "205",
-    roomType: "Executive Suite",
-    checkInDate: "2026-06-16",
-    checkOutDate: "2026-06-20",
-    guests: 3,
-    amount: 1200,
-    paymentStatus: "Pending",
-    bookingStatus: "Pending",
-  },
-  {
-    id: "BK-1003",
-    guestName: "Michael Brown",
-    email: "michael@example.com",
-    roomNumber: "310",
-    roomType: "Standard",
-    checkInDate: "2026-06-14",
-    checkOutDate: "2026-06-17",
-    guests: 1,
-    amount: 240,
-    paymentStatus: "Partial",
-    bookingStatus: "Checked In",
-  },
-];
 
 const Reservations = () => {
   const [reservations, setReservations] =
@@ -87,9 +28,58 @@ const Reservations = () => {
     amount: 0,
   });
 
+  const { setStays } = useHotel();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterRooms, setFilterRooms] = useState("All");
+
+  useEffect(() => {
+    setStays(
+      reservations.map((reservation) => ({
+        id: reservation.id,
+        guestName: reservation.guestName,
+        roomNumber: reservation.roomNumber,
+        roomType: reservation.roomType,
+        email: reservation.email,
+        checkInDate: reservation.checkInDate,
+        checkOutDate: reservation.checkOutDate,
+        amount: reservation.amount,
+        status:
+          reservation.bookingStatus === "Checked In"
+            ? "Checked In"
+            : reservation.bookingStatus === "Checked Out"
+              ? "Checked Out"
+              : "Pending",
+      })),
+    );
+  }, [reservations, setStays]);
+
+  const handleCreateReservation = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const reservationData = {
+      id: Date.now().toString(),
+      ...newReservation,
+    };
+
+    setReservations((prev) => [...prev, reservationData]);
+    setStays((prev) => [
+      ...prev,
+      {
+        id: reservationData.id,
+        guestName: reservationData.guestName,
+        email: reservationData.email,
+        roomNumber: reservationData.roomNumber,
+        roomType: reservationData.roomType,
+        amount: reservationData.amount,
+        checkInDate: reservationData.checkInDate,
+        checkOutDate: reservationData.checkOutDate,
+        status: "Pending",
+      },
+    ]);
+
+    setShowCreateModal(false);
+  };
 
   const filteredReservations = reservations.filter((reservation) => {
     const matchesSearch =
@@ -229,35 +219,7 @@ const Reservations = () => {
                 </button>
               </div>
 
-              <form
-                className="p-6"
-                onSubmit={(e) => {
-                  e.preventDefault();
-
-                  setReservations([
-                    ...reservations,
-                    {
-                      id: Date.now().toString(),
-                      ...newReservation,
-                    },
-                  ]);
-
-                  setShowCreateModal(false);
-
-                  setNewReservation({
-                    guestName: "",
-                    email: "",
-                    roomNumber: "",
-                    paymentStatus: "Pending",
-                    roomType: "",
-                    guests: 1,
-                    checkInDate: "",
-                    checkOutDate: "",
-                    bookingStatus: "Pending",
-                    amount: 0,
-                  });
-                }}
-              >
+              <form className="p-6" onSubmit={handleCreateReservation}>
                 <div className="grid grid-cols-2 gap-5">
                   {/* Name */}
 
@@ -837,9 +799,17 @@ const Reservations = () => {
                           className="bg-red-500 text-white px-3 py-1 rounded"
                           onClick={() => {
                             if (window.confirm("Delete Reservation?")) {
-                              setReservations(
-                                reservations.filter(
+                              // Remove from Reservation table
+                              setReservations((prev) =>
+                                prev.filter(
                                   (item) => item.id !== reservation.id,
+                                ),
+                              );
+
+                              // Remove from Check-In/Out table
+                              setStays((prev) =>
+                                prev.filter(
+                                  (stay) => stay.id !== reservation.id,
                                 ),
                               );
                             }

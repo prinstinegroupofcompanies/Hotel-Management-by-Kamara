@@ -1,52 +1,19 @@
 import { useState } from "react";
 import Navbar from "./Navbar";
-
-interface GuestStay {
-  id: string;
-  guestName: string;
-  roomNumber: string;
-  roomType: string;
-  email: string;
-  checkInDate: string;
-  checkOutDate: string;
-  status: "Pending Check-In" | "Checked In" | "Pending Check-Out";
-}
+import { useHotel, type GuestStay } from "../context/HotelContext";
 
 const CheckInCheckout = () => {
   const [search, setSearch] = useState("");
+  const { stays, setStays } = useHotel();
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [showView, setShowView] = useState(false);
 
-  const stays: GuestStay[] = [
-    {
-      id: "BK1001",
-      guestName: "John Doe",
-      email: "john.doe@example.com",
-      roomNumber: "101",
-      roomType: "Deluxe Room",
-      checkInDate: "2026-06-14",
-      checkOutDate: "2026-06-18",
-      status: "Pending Check-In",
-    },
-    {
-      id: "BK1002",
-      guestName: "Sarah Johnson",
-      email: "sarah.johnson@example.com",
-      roomNumber: "205",
-      roomType: "Executive Suite",
-      checkInDate: "2026-06-13",
-      checkOutDate: "2026-06-15",
-      status: "Checked In",
-    },
-    {
-      id: "BK1003",
-      guestName: "Michael Brown",
-      email: "michael.brown@example.com",
-      roomNumber: "310",
-      roomType: "Standard Room",
-      checkInDate: "2026-06-10",
-      checkOutDate: "2026-06-14",
-      status: "Pending Check-Out",
-    },
-  ];
+  const openView = (guest: GuestStay) => {
+    setSelectedGuest(guest);
+    setShowView(true);
+  };
+
+  const [selectedGuest, setSelectedGuest] = useState<GuestStay | null>(null);
 
   const filteredStays = stays.filter(
     (stay) =>
@@ -56,18 +23,38 @@ const CheckInCheckout = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Pending Check-In":
+      case "Pending":
         return "bg-yellow-100 text-yellow-700";
 
       case "Checked In":
         return "bg-green-100 text-green-700";
 
-      case "Pending Check-Out":
+      case "Checked Out":
         return "bg-red-100 text-red-700";
 
       default:
         return "bg-gray-100 text-gray-700";
     }
+  };
+  const handleCheckIn = (id: string) => {
+    setStays((prev) =>
+      prev.map((stay) =>
+        stay.id === id ? { ...stay, status: "Checked In" } : stay,
+      ),
+    );
+  };
+
+  const handleCheckOut = (id: string) => {
+    setStays((prev) =>
+      prev.map((stay) =>
+        stay.id === id ? { ...stay, status: "Checked Out" } : stay,
+      ),
+    );
+  };
+
+  const openInvoice = (guest: GuestStay) => {
+    setSelectedGuest(guest);
+    setShowInvoice(true);
   };
 
   return (
@@ -80,6 +67,66 @@ const CheckInCheckout = () => {
           <p className="text-gray-500">Manage guest arrivals and departures.</p>
         </div>
       </div>
+
+      {/* View Modal popup*/}
+
+      {showView && selectedGuest && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg w-[500px]">
+            <h2 className="text-xl font-bold mb-4">Guest Details</h2>
+
+            <p>{selectedGuest.guestName}</p>
+            <p>{selectedGuest.email}</p>
+            <p>{selectedGuest.roomNumber}</p>
+            <p>{selectedGuest.roomType}</p>
+
+            <button
+              onClick={() => setShowView(false)}
+              className="mt-5 bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Modal popup*/}
+
+      {showInvoice && selectedGuest && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg w-[500px]">
+            <h2 className="text-2xl font-bold mb-4">Guest Invoice</h2>
+
+            <p>
+              <strong>Name:</strong> {selectedGuest.guestName}
+            </p>
+
+            <p>
+              <strong>Room:</strong> {selectedGuest.roomNumber}
+            </p>
+
+            <p>
+              <strong>Amount:</strong> ${selectedGuest.amount}
+            </p>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => window.print()}
+                className="bg-green-600 text-white px-4 py-2 rounded"
+              >
+                Print Invoice
+              </button>
+
+              <button
+                onClick={() => setShowInvoice(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
@@ -181,31 +228,71 @@ const CheckInCheckout = () => {
 
                   <td className="p-4">
                     <div className="flex gap-2 flex-wrap">
-                      {stay.status === "Pending Check-In" && (
-                        <button className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
-                          Check In
-                        </button>
+                      {stay.status === "Pending" && (
+                        <>
+                          <button
+                            onClick={() => handleCheckIn(stay.id)}
+                            className="bg-green-600 text-white px-3 py-1 rounded"
+                          >
+                            Check In
+                          </button>
+                          <button
+                            className="bg-gray-700 text-white px-3 py-1 rounded"
+                            onClick={() => openInvoice(stay)}
+                          >
+                            Invoice
+                          </button>
+
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded"
+                            onClick={() => openView(stay)}
+                          >
+                            View
+                          </button>
+                        </>
                       )}
 
                       {stay.status === "Checked In" && (
-                        <button className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
-                          Check Out
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleCheckOut(stay.id)}
+                            className="bg-red-600 text-white px-3 py-1 rounded"
+                          >
+                            Check Out
+                          </button>
+                          <button
+                            className="bg-gray-700 text-white px-3 py-1 rounded"
+                            onClick={() => openInvoice(stay)}
+                          >
+                            Invoice
+                          </button>
+
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded"
+                            onClick={() => openView(stay)}
+                          >
+                            View
+                          </button>
+                        </>
                       )}
 
-                      {stay.status === "Pending Check-Out" && (
-                        <button className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
-                          Complete Check-Out
-                        </button>
+                      {stay.status === "Checked Out" && (
+                        <>
+                          <button
+                            className="bg-gray-700 text-white px-3 py-1 rounded"
+                            onClick={() => openInvoice(stay)}
+                          >
+                            Invoice
+                          </button>
+
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded"
+                            onClick={() => openView(stay)}
+                          >
+                            View
+                          </button>
+                        </>
                       )}
-
-                      <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                        View
-                      </button>
-
-                      <button className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">
-                        Invoice
-                      </button>
                     </div>
                   </td>
                 </tr>
