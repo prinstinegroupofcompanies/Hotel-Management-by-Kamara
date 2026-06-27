@@ -1,47 +1,24 @@
 import { useState } from "react";
+import { useHotel, type Room as HotelRoom } from "../context/HotelContext";
 import Navbar from "./Navbar";
-
-interface Room {
-  id: number;
-  roomNumber: string;
-  category: string;
-  floor: number;
-  capacity: number;
-  price: number;
-  status: "Available" | "Occupied" | "Reserved" | "Maintenance";
-  guest?: string;
-}
 
 const Room = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-
-  const initialRooms: Room[] = [
-    {
-      id: 1,
-      roomNumber: "101",
-      category: "Standard",
-      floor: 1,
-      capacity: 2,
-      price: 50,
-      status: "Available",
-    },
-    {
-      id: 2,
-      roomNumber: "102",
-      category: "Deluxe",
-      floor: 1,
-      capacity: 3,
-      price: 80,
-      status: "Occupied",
-      guest: "Jane Doe",
-    },
-  ];
-
-  const [rooms, setRooms] = useState<Room[]>(initialRooms);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const { rooms, setRooms } = useHotel();
+  const [selectedRoom, setSelectedRoom] = useState<HotelRoom | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newRoom, setNewRoom] = useState<HotelRoom>({
+    id: 0,
+    roomNumber: "",
+    category: "Standard",
+    floor: 1,
+    capacity: 1,
+    price: 0,
+    status: "Available",
+  });
 
   // Delete Function
 
@@ -51,19 +28,19 @@ const Room = () => {
     );
 
     if (confirmDelete) {
-      setRooms(rooms.filter((room) => room.id !== id));
+      setRooms((prev) => prev.filter((room) => room.id !== id));
     }
   };
 
   // View Function
 
-  const handleView = (room: Room) => {
+  const handleView = (room: HotelRoom) => {
     setSelectedRoom(room);
     setShowViewModal(true);
   };
 
   // Edit Function
-  const handleEdit = (room: Room) => {
+  const handleEdit = (room: HotelRoom) => {
     setSelectedRoom(room);
     setShowEditModal(true);
   };
@@ -77,11 +54,33 @@ const Room = () => {
       return;
     }
 
-    setRooms(
-      rooms.map((room) => (room.id === selectedRoom.id ? selectedRoom : room)),
+    setRooms((prev) =>
+      prev.map((room) => (room.id === selectedRoom.id ? selectedRoom : room)),
     );
 
     setShowEditModal(false);
+  };
+
+  const handleAddRoom = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const roomToAdd: HotelRoom = {
+      ...newRoom,
+      id: Date.now(),
+      status: "Available",
+    };
+
+    setRooms((prev) => [...prev, roomToAdd]);
+    setNewRoom({
+      id: 0,
+      roomNumber: "",
+      category: "Standard",
+      floor: 1,
+      capacity: 1,
+      price: 0,
+      status: "Available",
+    });
+    setShowAddModal(false);
   };
 
   const filteredRooms = rooms.filter((room) => {
@@ -94,6 +93,23 @@ const Room = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  const totalRooms = rooms.length;
+  const availableRooms = rooms.filter(
+    (room) => room.status === "Available",
+  ).length;
+  const occupiedRooms = rooms.filter(
+    (room) => room.status === "Occupied",
+  ).length;
+  const reservedRooms = rooms.filter(
+    (room) => room.status === "Reserved",
+  ).length;
+  const maintenanceRooms = rooms.filter(
+    (room) => room.status === "Maintenance",
+  ).length;
+  const occupancyRate = totalRooms
+    ? Math.round((occupiedRooms / totalRooms) * 100)
+    : 0;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -122,7 +138,10 @@ const Room = () => {
           </p>
         </div>
 
-        <button className="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition"
+        >
           + Add Room
         </button>
       </div>
@@ -131,22 +150,28 @@ const Room = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Total Rooms</h3>
-          <p className="text-3xl font-bold mt-2">120</p>
+          <p className="text-3xl font-bold mt-2">{totalRooms}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Available</h3>
-          <p className="text-3xl font-bold text-green-600 mt-2">24</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">
+            {availableRooms}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Occupied</h3>
-          <p className="text-3xl font-bold text-red-600 mt-2">82</p>
+          <p className="text-3xl font-bold text-red-600 mt-2">
+            {occupiedRooms}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Maintenance</h3>
-          <p className="text-3xl font-bold text-gray-700 mt-2">14</p>
+          <p className="text-3xl font-bold text-gray-700 mt-2">
+            {maintenanceRooms}
+          </p>
         </div>
       </div>
 
@@ -287,6 +312,129 @@ const Room = () => {
                 </div>
               )}
 
+              {/* Add Room Modal popup */}
+
+              {showAddModal && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-lg w-[600px] max-h-[90vh] overflow-auto">
+                    <h2 className="text-2xl font-bold mb-4">Add Room</h2>
+
+                    <form onSubmit={handleAddRoom} className="space-y-4">
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Room Number
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newRoom.roomNumber}
+                          onChange={(e) =>
+                            setNewRoom({
+                              ...newRoom,
+                              roomNumber: e.target.value,
+                            })
+                          }
+                          className="w-full border p-3 rounded"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Category
+                        </label>
+                        <select
+                          required
+                          value={newRoom.category}
+                          onChange={(e) =>
+                            setNewRoom({ ...newRoom, category: e.target.value })
+                          }
+                          className="w-full border p-3 rounded"
+                        >
+                          <option>Standard</option>
+                          <option>Deluxe</option>
+                          <option>Executive Suite</option>
+                          <option>Presidential Suite</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Floor
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          value={newRoom.floor}
+                          onChange={(e) =>
+                            setNewRoom({
+                              ...newRoom,
+                              floor: Number(e.target.value),
+                            })
+                          }
+                          className="w-full border p-3 rounded"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Capacity
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          value={newRoom.capacity}
+                          onChange={(e) =>
+                            setNewRoom({
+                              ...newRoom,
+                              capacity: Number(e.target.value),
+                            })
+                          }
+                          className="w-full border p-3 rounded"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Price/Night
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={0}
+                          value={newRoom.price}
+                          onChange={(e) =>
+                            setNewRoom({
+                              ...newRoom,
+                              price: Number(e.target.value),
+                            })
+                          }
+                          className="w-full border p-3 rounded"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddModal(false)}
+                          className="px-5 py-2 bg-gray-500 text-white rounded"
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="submit"
+                          className="px-5 py-2 bg-green-600 text-white rounded"
+                        >
+                          Add Room
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
               {/* Edit Modal popup */}
 
               {showEditModal && selectedRoom && (
@@ -340,7 +488,7 @@ const Room = () => {
                         onChange={(e) =>
                           setSelectedRoom({
                             ...selectedRoom,
-                            status: e.target.value as Room["status"],
+                            status: e.target.value as HotelRoom["status"],
                           })
                         }
                         className="w-full border p-3 rounded"
@@ -391,22 +539,24 @@ const Room = () => {
           <div className="space-y-4">
             <div className="flex justify-between">
               <span>Available Rooms</span>
-              <span className="font-bold text-green-600">24</span>
+              <span className="font-bold text-green-600">{availableRooms}</span>
             </div>
 
             <div className="flex justify-between">
               <span>Occupied Rooms</span>
-              <span className="font-bold text-red-600">82</span>
+              <span className="font-bold text-red-600">{occupiedRooms}</span>
             </div>
 
             <div className="flex justify-between">
               <span>Reserved Rooms</span>
-              <span className="font-bold text-yellow-600">10</span>
+              <span className="font-bold text-yellow-600">{reservedRooms}</span>
             </div>
 
             <div className="flex justify-between">
               <span>Maintenance Rooms</span>
-              <span className="font-bold text-gray-700">4</span>
+              <span className="font-bold text-gray-700">
+                {maintenanceRooms}
+              </span>
             </div>
           </div>
         </div>
@@ -415,11 +565,14 @@ const Room = () => {
           <h2 className="text-xl font-semibold mb-4">Occupancy Rate</h2>
 
           <div className="w-full bg-gray-200 rounded-full h-5">
-            <div className="bg-green-500 h-5 rounded-full w-[82%]"></div>
+            <div
+              className="bg-green-500 h-5 rounded-full"
+              style={{ width: `${occupancyRate}%` }}
+            ></div>
           </div>
 
           <p className="mt-3 text-gray-600">
-            Current Occupancy: <strong>82%</strong>
+            Current Occupancy: <strong>{occupancyRate}%</strong>
           </p>
         </div>
       </div>

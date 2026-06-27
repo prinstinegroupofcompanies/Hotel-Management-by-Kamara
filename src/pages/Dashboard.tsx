@@ -1,15 +1,18 @@
 import { useMemo } from "react";
 import { useHotel } from "../context/HotelContext";
 import Navbar from "./Navbar";
-import { initialReservations } from "../data/reservations";
 
 const Dashboard = () => {
-  const { stays } = useHotel();
+  const { stays, reservations, rooms } = useHotel();
 
   const dashboardStats = useMemo(() => {
-    const totalRooms = 120;
-    const occupiedRooms = stays.length;
-    const availableRooms = totalRooms - occupiedRooms;
+    const totalRooms = rooms.length;
+    const occupiedRooms = rooms.filter(
+      (room) => room.status === "Occupied",
+    ).length;
+    const availableRooms = rooms.filter(
+      (room) => room.status === "Available",
+    ).length;
 
     const today = new Date().toISOString().split("T")[0];
     const todayRevenue = stays
@@ -18,7 +21,7 @@ const Dashboard = () => {
 
     const monthlyRevenue = stays.reduce((sum, stay) => sum + stay.amount, 0);
 
-    const pendingPayments = initialReservations
+    const pendingPayments = reservations
       .filter((reservation) => reservation.paymentStatus === "Pending")
       .reduce((sum, reservation) => sum + reservation.amount, 0);
 
@@ -30,13 +33,63 @@ const Dashboard = () => {
       (stay) => stay.status === "Checked Out",
     ).length;
 
-    const cancelledPayments = initialReservations.filter(
+    const cancelledPayments = reservations.filter(
       (reservation) => reservation.paymentStatus === "Balance",
     ).length;
 
-    const recentReservations = [...initialReservations]
+    const recentReservations = [...reservations]
       .sort((a, b) => b.id.localeCompare(a.id))
       .slice(0, 3);
+
+    const housekeepingTasks = stays.slice(0, 4).map((stay) => {
+      if (stay.status === "Pending") {
+        return {
+          roomNumber: stay.roomNumber,
+          detail: `Cleaning pending for ${stay.guestName}`,
+        };
+      }
+
+      if (stay.status === "Checked In") {
+        return {
+          roomNumber: stay.roomNumber,
+          detail: `Service needed for ${stay.guestName}`,
+        };
+      }
+
+      return {
+        roomNumber: stay.roomNumber,
+        detail: "Ready for the next guest",
+      };
+    });
+
+    const staffActivity = [
+      {
+        label: "Reception",
+        value: `${checkedInToday + checkedOutToday + stays.length} active bookings`,
+      },
+      {
+        label: "Housekeeping",
+        value: `${stays.filter((stay) => stay.status !== "Checked Out").length} rooms in progress`,
+      },
+      {
+        label: "Maintenance",
+        value: `${stays.filter((stay) => stay.paymentStatus === "Pending").length} payment follow-ups`,
+      },
+      {
+        label: "Security",
+        value: `${stays.filter((stay) => stay.status === "Checked In").length} checked-in guests`,
+      },
+    ];
+
+    const occupiedPercentage = totalRooms
+      ? Math.round((occupiedRooms / totalRooms) * 100)
+      : 0;
+    const availablePercentage = totalRooms
+      ? Math.round((availableRooms / totalRooms) * 100)
+      : 0;
+    const maintenancePercentage = totalRooms
+      ? Math.round(((occupiedRooms > 0 ? 1 : 0) / totalRooms) * 100)
+      : 0;
 
     return {
       totalRooms,
@@ -50,8 +103,13 @@ const Dashboard = () => {
       checkedInToday,
       checkedOutToday,
       recentReservations,
+      housekeepingTasks,
+      staffActivity,
+      occupiedPercentage,
+      availablePercentage,
+      maintenancePercentage,
     };
-  }, [stays]);
+  }, [reservations, rooms, stays]);
 
   return (
     <Navbar>
@@ -209,33 +267,42 @@ const Dashboard = () => {
             <div>
               <div className="flex justify-between mb-2">
                 <span>Occupied</span>
-                <span>80%</span>
+                <span>{dashboardStats.occupiedPercentage}%</span>
               </div>
 
               <div className="w-full h-3 bg-gray-200 rounded-full">
-                <div className="w-[80%] h-3 bg-green-500 rounded-full"></div>
+                <div
+                  className="h-3 bg-green-500 rounded-full"
+                  style={{ width: `${dashboardStats.occupiedPercentage}%` }}
+                ></div>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between mb-2">
                 <span>Available</span>
-                <span>20%</span>
+                <span>{dashboardStats.availablePercentage}%</span>
               </div>
 
               <div className="w-full h-3 bg-gray-200 rounded-full">
-                <div className="w-[20%] h-3 bg-blue-500 rounded-full"></div>
+                <div
+                  className="h-3 bg-blue-500 rounded-full"
+                  style={{ width: `${dashboardStats.availablePercentage}%` }}
+                ></div>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between mb-2">
                 <span>Maintenance</span>
-                <span>5%</span>
+                <span>{dashboardStats.maintenancePercentage}%</span>
               </div>
 
               <div className="w-full h-3 bg-gray-200 rounded-full">
-                <div className="w-[5%] h-3 bg-red-500 rounded-full"></div>
+                <div
+                  className="h-3 bg-red-500 rounded-full"
+                  style={{ width: `${dashboardStats.maintenancePercentage}%` }}
+                ></div>
               </div>
             </div>
           </div>
@@ -249,10 +316,11 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Housekeeping Tasks</h2>
 
           <ul className="space-y-3">
-            <li>Room 101 - Cleaning Pending</li>
-            <li>Room 204 - Inspection Required</li>
-            <li>Room 310 - Ready for Guest</li>
-            <li>Room 411 - Maintenance Request</li>
+            {dashboardStats.housekeepingTasks.map((task) => (
+              <li key={`${task.roomNumber}-${task.detail}`}>
+                Room {task.roomNumber} - {task.detail}
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -261,10 +329,11 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Staff Activity</h2>
 
           <ul className="space-y-3">
-            <li>Reception: 4 Staff Active</li>
-            <li>Housekeeping: 12 Staff Active</li>
-            <li>Maintenance: 3 Staff Active</li>
-            <li>Security: 5 Staff Active</li>
+            {dashboardStats.staffActivity.map((item) => (
+              <li key={item.label}>
+                {item.label}: {item.value}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

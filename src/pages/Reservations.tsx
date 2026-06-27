@@ -1,15 +1,14 @@
 import { useHotel } from "../context/HotelContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "./Navbar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { initialReservations, type Reservation } from "../data/reservations";
+import { type Reservation } from "../data/reservations";
 
 type ReservationForm = Omit<Reservation, "id">;
 
 const Reservations = () => {
-  const [reservations, setReservations] =
-    useState<Reservation[]>(initialReservations);
+  const { reservations, setReservations } = useHotel();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -28,31 +27,9 @@ const Reservations = () => {
     amount: 0,
   });
 
-  const { setStays } = useHotel();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterRooms, setFilterRooms] = useState("All");
-
-  useEffect(() => {
-    setStays(
-      reservations.map((reservation) => ({
-        id: reservation.id,
-        guestName: reservation.guestName,
-        roomNumber: reservation.roomNumber,
-        roomType: reservation.roomType,
-        email: reservation.email,
-        checkInDate: reservation.checkInDate,
-        checkOutDate: reservation.checkOutDate,
-        amount: reservation.amount,
-        status:
-          reservation.bookingStatus === "Checked In"
-            ? "Checked In"
-            : reservation.bookingStatus === "Checked Out"
-              ? "Checked Out"
-              : "Pending",
-      })),
-    );
-  }, [reservations, setStays]);
 
   const handleCreateReservation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,20 +40,6 @@ const Reservations = () => {
     };
 
     setReservations((prev) => [...prev, reservationData]);
-    setStays((prev) => [
-      ...prev,
-      {
-        id: reservationData.id,
-        guestName: reservationData.guestName,
-        email: reservationData.email,
-        roomNumber: reservationData.roomNumber,
-        roomType: reservationData.roomType,
-        amount: reservationData.amount,
-        checkInDate: reservationData.checkInDate,
-        checkOutDate: reservationData.checkOutDate,
-        status: "Pending",
-      },
-    ]);
 
     setShowCreateModal(false);
   };
@@ -799,17 +762,9 @@ const Reservations = () => {
                           className="bg-red-500 text-white px-3 py-1 rounded"
                           onClick={() => {
                             if (window.confirm("Delete Reservation?")) {
-                              // Remove from Reservation table
                               setReservations((prev) =>
                                 prev.filter(
                                   (item) => item.id !== reservation.id,
-                                ),
-                              );
-
-                              // Remove from Check-In/Out table
-                              setStays((prev) =>
-                                prev.filter(
-                                  (stay) => stay.id !== reservation.id,
                                 ),
                               );
                             }

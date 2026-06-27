@@ -1,4 +1,16 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { initialReservations, type Reservation } from "../data/reservations";
+
+export interface Room {
+  id: number;
+  roomNumber: string;
+  category: string;
+  floor: number;
+  capacity: number;
+  price: number;
+  status: "Available" | "Occupied" | "Reserved" | "Maintenance";
+  guest?: string;
+}
 
 export interface GuestStay {
   id: string;
@@ -10,20 +22,79 @@ export interface GuestStay {
   checkOutDate: string;
   amount: number;
   status: "Pending" | "Checked In" | "Checked Out";
+  paymentStatus: "Paid" | "Pending" | "Partial" | "Balance";
 }
 
 interface HotelContextType {
   stays: GuestStay[];
   setStays: React.Dispatch<React.SetStateAction<GuestStay[]>>;
+  reservations: Reservation[];
+  setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
+  rooms: Room[];
+  setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
 }
 
 const HotelContext = createContext<HotelContextType | null>(null);
 
 export const HotelProvider = ({ children }: { children: React.ReactNode }) => {
+  const [reservations, setReservations] =
+    useState<Reservation[]>(initialReservations);
   const [stays, setStays] = useState<GuestStay[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([
+    {
+      id: 1,
+      roomNumber: "101",
+      category: "Standard",
+      floor: 1,
+      capacity: 2,
+      price: 50,
+      status: "Available",
+    },
+    {
+      id: 2,
+      roomNumber: "102",
+      category: "Deluxe",
+      floor: 1,
+      capacity: 3,
+      price: 80,
+      status: "Occupied",
+      guest: "Jane Doe",
+    },
+  ]);
+
+  useEffect(() => {
+    setStays(
+      reservations.map((reservation) => ({
+        id: reservation.id,
+        guestName: reservation.guestName,
+        roomNumber: reservation.roomNumber,
+        roomType: reservation.roomType,
+        email: reservation.email,
+        checkInDate: reservation.checkInDate,
+        checkOutDate: reservation.checkOutDate,
+        amount: reservation.amount,
+        paymentStatus: reservation.paymentStatus,
+        status:
+          reservation.bookingStatus === "Checked In"
+            ? "Checked In"
+            : reservation.bookingStatus === "Checked Out"
+              ? "Checked Out"
+              : "Pending",
+      })),
+    );
+  }, [reservations]);
 
   return (
-    <HotelContext.Provider value={{ stays, setStays }}>
+    <HotelContext.Provider
+      value={{
+        stays,
+        setStays,
+        reservations,
+        setReservations,
+        rooms,
+        setRooms,
+      }}
+    >
       {children}
     </HotelContext.Provider>
   );

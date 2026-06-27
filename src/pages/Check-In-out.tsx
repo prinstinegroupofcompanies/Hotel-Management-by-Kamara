@@ -4,7 +4,7 @@ import { useHotel, type GuestStay } from "../context/HotelContext";
 
 const CheckInCheckout = () => {
   const [search, setSearch] = useState("");
-  const { stays, setStays } = useHotel();
+  const { stays, setStays, setReservations } = useHotel();
   const [showInvoice, setShowInvoice] = useState(false);
   const [showView, setShowView] = useState(false);
 
@@ -36,10 +36,33 @@ const CheckInCheckout = () => {
         return "bg-gray-100 text-gray-700";
     }
   };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case "Paid":
+        return "bg-green-100 text-green-700";
+      case "Pending":
+        return "bg-red-100 text-red-700";
+      case "Partial":
+        return "bg-yellow-100 text-yellow-700";
+      case "Balance":
+        return "bg-blue-100 text-blue-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
   const handleCheckIn = (id: string) => {
     setStays((prev) =>
       prev.map((stay) =>
         stay.id === id ? { ...stay, status: "Checked In" } : stay,
+      ),
+    );
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.id === id
+          ? { ...reservation, bookingStatus: "Checked In" }
+          : reservation,
       ),
     );
   };
@@ -50,12 +73,57 @@ const CheckInCheckout = () => {
         stay.id === id ? { ...stay, status: "Checked Out" } : stay,
       ),
     );
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.id === id
+          ? { ...reservation, bookingStatus: "Checked Out" }
+          : reservation,
+      ),
+    );
+  };
+
+  const handlePay = (id: string) => {
+    setStays((prev) =>
+      prev.map((stay) =>
+        stay.id === id ? { ...stay, paymentStatus: "Paid" } : stay,
+      ),
+    );
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.id === id
+          ? { ...reservation, paymentStatus: "Paid" }
+          : reservation,
+      ),
+    );
   };
 
   const openInvoice = (guest: GuestStay) => {
     setSelectedGuest(guest);
     setShowInvoice(true);
   };
+
+  const today = new Date().toISOString().split("T")[0];
+  const todayArrivals = stays.filter(
+    (stay) => stay.checkInDate === today,
+  ).length;
+  const todayDepartures = stays.filter(
+    (stay) => stay.checkOutDate === today,
+  ).length;
+  const checkedInGuests = stays.filter(
+    (stay) => stay.status === "Checked In",
+  ).length;
+  const pendingCheckOut = stays.filter(
+    (stay) => stay.status !== "Checked Out",
+  ).length;
+  const pendingArrivals = stays.filter(
+    (stay) => stay.status === "Pending",
+  ).length;
+  const activeGuests = stays.filter(
+    (stay) => stay.status === "Checked In",
+  ).length;
+  const pendingDepartures = stays.filter(
+    (stay) => stay.status === "Checked In" || stay.status === "Pending",
+  ).length;
 
   return (
     <Navbar>
@@ -133,25 +201,25 @@ const CheckInCheckout = () => {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Today's Arrivals</h3>
 
-          <p className="text-3xl font-bold text-blue-600 mt-2">24</p>
+          <p className="text-3xl font-bold text-blue-600 mt-2">{todayArrivals}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Today's Departures</h3>
 
-          <p className="text-3xl font-bold text-purple-600 mt-2">18</p>
+          <p className="text-3xl font-bold text-purple-600 mt-2">{todayDepartures}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Checked-In Guests</h3>
 
-          <p className="text-3xl font-bold text-green-600 mt-2">96</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">{checkedInGuests}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Pending Check-Out</h3>
 
-          <p className="text-3xl font-bold text-red-600 mt-2">12</p>
+          <p className="text-3xl font-bold text-red-600 mt-2">{pendingCheckOut}</p>
         </div>
       </div>
 
@@ -186,6 +254,8 @@ const CheckInCheckout = () => {
 
                 <th className="p-4 text-left">Check-Out</th>
 
+                <th className="p-4 text-left">Payment</th>
+
                 <th className="p-4 text-left">Status</th>
 
                 <th className="p-4 text-left">Actions</th>
@@ -218,6 +288,16 @@ const CheckInCheckout = () => {
 
                   <td className="p-4">
                     <span
+                      className={`px-3 py-1 rounded-full text-sm ${getPaymentStatusColor(
+                        stay.paymentStatus,
+                      )}`}
+                    >
+                      {stay.paymentStatus}
+                    </span>
+                  </td>
+
+                  <td className="p-4">
+                    <span
                       className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
                         stay.status,
                       )}`}
@@ -228,6 +308,15 @@ const CheckInCheckout = () => {
 
                   <td className="p-4">
                     <div className="flex gap-2 flex-wrap">
+                      {stay.paymentStatus === "Pending" && (
+                        <button
+                          onClick={() => handlePay(stay.id)}
+                          className="bg-amber-600 text-white px-3 py-1 rounded"
+                        >
+                          Pay
+                        </button>
+                      )}
+
                       {stay.status === "Pending" && (
                         <>
                           <button
@@ -315,19 +404,19 @@ const CheckInCheckout = () => {
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="font-semibold text-xl mb-3">Pending Arrivals</h2>
 
-          <p className="text-5xl font-bold text-yellow-500">24</p>
+          <p className="text-5xl font-bold text-yellow-500">{pendingArrivals}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="font-semibold text-xl mb-3">Active Guests</h2>
 
-          <p className="text-5xl font-bold text-green-600">96</p>
+          <p className="text-5xl font-bold text-green-600">{activeGuests}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="font-semibold text-xl mb-3">Pending Departures</h2>
 
-          <p className="text-5xl font-bold text-red-600">12</p>
+          <p className="text-5xl font-bold text-red-600">{pendingDepartures}</p>
         </div>
       </div>
     </Navbar>
