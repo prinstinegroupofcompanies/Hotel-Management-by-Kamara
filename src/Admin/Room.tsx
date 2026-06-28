@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 
 const Room = () => {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
   const { rooms, setRooms } = useHotel();
   const [selectedRoom, setSelectedRoom] = useState<HotelRoom | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -18,6 +17,7 @@ const Room = () => {
     capacity: 1,
     price: 0,
     status: "Available",
+    roomCount: 1,
   });
 
   // Delete Function
@@ -79,6 +79,7 @@ const Room = () => {
       capacity: 1,
       price: 0,
       status: "Available",
+      roomCount: 1,
     });
     setShowAddModal(false);
   };
@@ -88,10 +89,7 @@ const Room = () => {
       room.roomNumber.includes(search) ||
       room.category.toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === "All" || room.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   const totalRooms = rooms.length;
@@ -110,21 +108,6 @@ const Room = () => {
   const occupancyRate = totalRooms
     ? Math.round((occupiedRooms / totalRooms) * 100)
     : 0;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Available":
-        return "bg-green-100 text-green-700";
-      case "Occupied":
-        return "bg-red-100 text-red-700";
-      case "Reserved":
-        return "bg-yellow-100 text-yellow-700";
-      case "Maintenance":
-        return "bg-gray-100 text-gray-700";
-      default:
-        return "bg-blue-100 text-blue-700";
-    }
-  };
 
   return (
     <Navbar>
@@ -185,18 +168,6 @@ const Room = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-3"
-          >
-            <option value="All">All Status</option>
-            <option value="Available">Available</option>
-            <option value="Occupied">Occupied</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Maintenance">Maintenance</option>
-          </select>
         </div>
       </div>
 
@@ -215,8 +186,7 @@ const Room = () => {
                 <th className="text-left p-4">Floor</th>
                 <th className="text-left p-4">Capacity</th>
                 <th className="text-left p-4">Price/Night</th>
-                <th className="text-left p-4">Guest</th>
-                <th className="text-left p-4">Status</th>
+                <th className="text-left p-4">Rooms</th>
                 <th className="text-left p-4">Actions</th>
               </tr>
             </thead>
@@ -236,17 +206,7 @@ const Room = () => {
                     ${room.price}
                   </td>
 
-                  <td className="p-4">{room.guest || "-"}</td>
-
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
-                        room.status,
-                      )}`}
-                    >
-                      {room.status}
-                    </span>
-                  </td>
+                  <td className="p-4">{room.roomCount ?? "-"}</td>
 
                   <td className="p-4">
                     <div className="flex gap-2">
@@ -293,10 +253,6 @@ const Room = () => {
 
                       <p>
                         <strong>Price:</strong> ${selectedRoom.price}
-                      </p>
-
-                      <p>
-                        <strong>Status:</strong> {selectedRoom.status}
                       </p>
                     </div>
 
@@ -414,6 +370,25 @@ const Room = () => {
                         />
                       </div>
 
+                      <div>
+                        <label className="block mb-2 font-semibold">
+                          Rooms
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          className="w-full border p-3 rounded"
+                          value={newRoom.roomCount ?? 1}
+                          onChange={(e) =>
+                            setNewRoom({
+                              ...newRoom,
+                              roomCount: Number(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="Enter number of rooms"
+                        />
+                      </div>
+
                       <div className="flex justify-end gap-3">
                         <button
                           type="button"
@@ -482,21 +457,6 @@ const Room = () => {
                         }
                         className="w-full border p-3 rounded"
                       />
-
-                      <select
-                        value={selectedRoom.status}
-                        onChange={(e) =>
-                          setSelectedRoom({
-                            ...selectedRoom,
-                            status: e.target.value as HotelRoom["status"],
-                          })
-                        }
-                        className="w-full border p-3 rounded"
-                      >
-                        <option>Available</option>
-                        <option>Occupied</option>
-                        <option>Maintenance</option>
-                      </select>
 
                       <div className="flex justify-end gap-3">
                         <button

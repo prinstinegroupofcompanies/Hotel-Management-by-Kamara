@@ -9,7 +9,7 @@ export interface Room {
   capacity: number;
   price: number;
   status: "Available" | "Occupied" | "Reserved" | "Maintenance";
-  guest?: string;
+  roomCount?: number;
 }
 
 export interface GuestStay {
@@ -49,6 +49,7 @@ export const HotelProvider = ({ children }: { children: React.ReactNode }) => {
       capacity: 2,
       price: 50,
       status: "Available",
+      roomCount: 3,
     },
     {
       id: 2,
@@ -58,7 +59,57 @@ export const HotelProvider = ({ children }: { children: React.ReactNode }) => {
       capacity: 3,
       price: 80,
       status: "Occupied",
-      guest: "Jane Doe",
+      roomCount: 3,
+    },
+    {
+      id: 3,
+      roomNumber: "103",
+      category: "Double",
+      floor: 1,
+      capacity: 2,
+      price: 50,
+      status: "Available",
+      roomCount: 5,
+    },
+    {
+      id: 4,
+      roomNumber: "104",
+      category: "Suite",
+      floor: 1,
+      capacity: 4,
+      price: 150,
+      status: "Available",
+      roomCount: 2,
+    },
+    {
+      id: 5,
+      roomNumber: "105",
+      category: "Executive Suite",
+      floor: 1,
+      capacity: 3,
+      price: 80,
+      status: "Occupied",
+      roomCount: 10,
+    },
+    {
+      id: 6,
+      roomNumber: "106",
+      category: "Family",
+      floor: 1,
+      capacity: 2,
+      price: 50,
+      status: "Available",
+      roomCount: 8,
+    },
+    {
+      id: 7,
+      roomNumber: "107",
+      category: "Presidential Suite",
+      floor: 1,
+      capacity: 3,
+      price: 80,
+      status: "Occupied",
+      roomCount: 1,
     },
   ]);
 

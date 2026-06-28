@@ -1,19 +1,19 @@
 import { HotelProvider } from "./context/HotelContext";
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Room from "./pages/Room";
-import Guest from "./pages/Guest";
-import Categories from "./pages/categorias";
-import Reservations from "./pages/Reservations";
-import CheckInCheckout from "./pages/Check-In-out";
-import Housekeeping from "./pages/HousePeeking";
-import Payments from "./pages/Payment";
-import StaffManagement from "./pages/StaffManagement";
-import ProtectedRoute from "./pages/ProtectedRoute";
-import Login from "./pages/Login";
-import Analytics from "./pages/Analytics";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
+import Dashboard from "./Admin/Dashboard";
+import Room from "./Admin/Room";
+import Guest from "./Admin/Guest";
+import Categories from "./Admin/categorias";
+import Reservations from "./Admin/Reservations";
+import CheckInCheckout from "./Admin/Check-In-out";
+import Housekeeping from "./Admin/HousePeeking";
+import Payments from "./Admin/Payment";
+import StaffManagement from "./Admin/StaffManagement";
+import ProtectedRoute from "./Admin/ProtectedRoute";
+import Login from "./Admin/Login";
+import Analytics from "./Admin/Analytics";
+import Reports from "./Admin/Reports";
+import Settings from "./Admin/Settings";
 
 export const App = () => {
   return (

@@ -8,7 +8,7 @@ import { type Reservation } from "../data/reservations";
 type ReservationForm = Omit<Reservation, "id">;
 
 const Reservations = () => {
-  const { reservations, setReservations } = useHotel();
+  const { reservations, setReservations, rooms } = useHotel();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -30,6 +30,9 @@ const Reservations = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterRooms, setFilterRooms] = useState("All");
+  const roomCategories = Array.from(
+    new Set(rooms.map((room) => room.category)),
+  );
 
   const handleCreateReservation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -235,21 +238,24 @@ const Reservations = () => {
                       required
                       className="w-full border rounded-lg p-3"
                       value={newReservation.roomNumber}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const selectedRoom = rooms.find(
+                          (room) => room.roomNumber === e.target.value,
+                        );
+
                         setNewReservation({
                           ...newReservation,
                           roomNumber: e.target.value,
-                        })
-                      }
+                          roomType: selectedRoom?.category ?? "",
+                        });
+                      }}
                     >
                       <option value="">Select Room</option>
-                      <option>101</option>
-                      <option>102</option>
-                      <option>103</option>
-                      <option>104</option>
-                      <option>201</option>
-                      <option>202</option>
-                      <option>301</option>
+                      {rooms.map((room) => (
+                        <option key={room.id} value={room.roomNumber}>
+                          {room.roomNumber}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -272,13 +278,11 @@ const Reservations = () => {
                       }
                     >
                       <option value="">Select Room Type</option>
-                      <option>Single Room</option>
-                      <option>Double Room</option>
-                      <option>Deluxe Room</option>
-                      <option>Executive Room</option>
-                      <option>Suite</option>
-                      <option>Family Room</option>
-                      <option>Presidential Suite</option>
+                      {roomCategories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
