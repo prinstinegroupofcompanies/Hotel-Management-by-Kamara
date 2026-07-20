@@ -126,6 +126,14 @@ const Navbar = ({ children }: NavbarProps) => {
             </li>
             <li>
               <Link
+                to="/history"
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800"
+              >
+                <span>⚙️</span> {!collapsed && <span>History</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/"
                 className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
               >

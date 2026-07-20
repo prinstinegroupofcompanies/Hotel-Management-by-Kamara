@@ -4,7 +4,7 @@ import { useHotel, type GuestStay } from "../context/HotelContext";
 
 const CheckInCheckout = () => {
   const [search, setSearch] = useState("");
-  const { stays, setStays, setReservations } = useHotel();
+  const { stays, setStays, setReservations, setHistory } = useHotel();
   const [showInvoice, setShowInvoice] = useState(false);
   const [showView, setShowView] = useState(false);
 
@@ -68,18 +68,30 @@ const CheckInCheckout = () => {
   };
 
   const handleCheckOut = (id: string) => {
-    setStays((prev) =>
-      prev.map((stay) =>
-        stay.id === id ? { ...stay, status: "Checked Out" } : stay,
-      ),
-    );
+    const checkedOutStay = stays.find((stay) => stay.id === id);
+
+    if (!checkedOutStay) return;
+
+    setStays((prev) => prev.filter((stay) => stay.id !== id));
     setReservations((prev) =>
-      prev.map((reservation) =>
-        reservation.id === id
-          ? { ...reservation, bookingStatus: "Checked Out" }
-          : reservation,
-      ),
+      prev.filter((reservation) => reservation.id !== id),
     );
+    setHistory((prev) => [
+      {
+        id: checkedOutStay.id,
+        guestName: checkedOutStay.guestName,
+        roomNumber: checkedOutStay.roomNumber,
+        roomType: checkedOutStay.roomType,
+        email: checkedOutStay.email,
+        checkInDate: checkedOutStay.checkInDate,
+        checkOutDate: checkedOutStay.checkOutDate,
+        amount: checkedOutStay.amount,
+        paymentStatus: checkedOutStay.paymentStatus,
+        status: "Checked Out",
+        checkedOutAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
   };
 
   const handlePay = (id: string) => {
@@ -201,25 +213,33 @@ const CheckInCheckout = () => {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Today's Arrivals</h3>
 
-          <p className="text-3xl font-bold text-blue-600 mt-2">{todayArrivals}</p>
+          <p className="text-3xl font-bold text-blue-600 mt-2">
+            {todayArrivals}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Today's Departures</h3>
 
-          <p className="text-3xl font-bold text-purple-600 mt-2">{todayDepartures}</p>
+          <p className="text-3xl font-bold text-purple-600 mt-2">
+            {todayDepartures}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Checked-In Guests</h3>
 
-          <p className="text-3xl font-bold text-green-600 mt-2">{checkedInGuests}</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">
+            {checkedInGuests}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-gray-500">Pending Check-Out</h3>
 
-          <p className="text-3xl font-bold text-red-600 mt-2">{pendingCheckOut}</p>
+          <p className="text-3xl font-bold text-red-600 mt-2">
+            {pendingCheckOut}
+          </p>
         </div>
       </div>
 
@@ -404,7 +424,9 @@ const CheckInCheckout = () => {
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="font-semibold text-xl mb-3">Pending Arrivals</h2>
 
-          <p className="text-5xl font-bold text-yellow-500">{pendingArrivals}</p>
+          <p className="text-5xl font-bold text-yellow-500">
+            {pendingArrivals}
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow p-6">

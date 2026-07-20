@@ -25,6 +25,20 @@ export interface GuestStay {
   paymentStatus: "Paid" | "Pending" | "Partial" | "Balance";
 }
 
+export interface HistoryEntry {
+  id: string;
+  guestName: string;
+  roomNumber: string;
+  roomType: string;
+  email: string;
+  checkInDate: string;
+  checkOutDate: string;
+  amount: number;
+  paymentStatus: "Paid" | "Pending" | "Partial" | "Balance";
+  status: "Checked Out";
+  checkedOutAt: string;
+}
+
 interface HotelContextType {
   stays: GuestStay[];
   setStays: React.Dispatch<React.SetStateAction<GuestStay[]>>;
@@ -32,6 +46,8 @@ interface HotelContextType {
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
   rooms: Room[];
   setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+  history: HistoryEntry[];
+  setHistory: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
 }
 
 const HotelContext = createContext<HotelContextType | null>(null);
@@ -40,6 +56,7 @@ export const HotelProvider = ({ children }: { children: React.ReactNode }) => {
   const [reservations, setReservations] =
     useState<Reservation[]>(initialReservations);
   const [stays, setStays] = useState<GuestStay[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [rooms, setRooms] = useState<Room[]>([
     {
       id: 1,
@@ -144,6 +161,8 @@ export const HotelProvider = ({ children }: { children: React.ReactNode }) => {
         setReservations,
         rooms,
         setRooms,
+        history,
+        setHistory,
       }}
     >
       {children}

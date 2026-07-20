@@ -14,6 +14,7 @@ import Login from "./Admin/Login";
 import Analytics from "./Admin/Analytics";
 import Reports from "./Admin/Reports";
 import Settings from "./Admin/Settings";
+import History from "./Admin/History";
 
 export const App = () => {
   return (
@@ -30,6 +31,7 @@ export const App = () => {
             <Route path="/Housekeeping" element={<Housekeeping />} />
             <Route path="/Payments" element={<Payments />} />
             <Route path="/StaffManagement" element={<StaffManagement />} />
+            <Route path="/history" element={<History />} />
             <Route path="/Analytics" element={<Analytics />} />
             <Route path="/Reports" element={<Reports />} />
             <Route path="/Settings" element={<Settings />} />
