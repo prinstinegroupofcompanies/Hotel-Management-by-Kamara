@@ -170,8 +170,8 @@ const Reservations = () => {
         {/* Reservation popup form */}
 
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-            <div className="bg-white pt-5 rounded-xl shadow-xl w-[750px] max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="w-full max-w-3xl max-h-[90dvh] overflow-y-auto rounded-xl bg-white pt-5 shadow-xl">
               {/* Header */}
 
               <div className="flex justify-between pb-4 items-center border-b p-5">
@@ -186,7 +186,7 @@ const Reservations = () => {
               </div>
 
               <form className="p-6" onSubmit={handleCreateReservation}>
-                <div className="grid grid-cols-2 gap-5 pt-5">
+                <div className="grid grid-cols-1 gap-5 pt-5 sm:grid-cols-2">
                   {/* Name */}
 
                   <div>
@@ -446,7 +446,7 @@ const Reservations = () => {
         )}
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 xl:grid-cols-4 sm:gap-6">
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-3xl font-bold">{totalReservations}</h2>
 
@@ -479,20 +479,20 @@ const Reservations = () => {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl shadow p-10  mb-6">
-          <div className=" flex md:grid-cols-2 gap-2">
+        <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <input
               type="text"
               placeholder="Search reservation..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-300 rounded-lg pl-5 text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="border border-gray-300 rounded-lg pl-2 text-xs  w-[50%]"
+              className="w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm"
             >
               <option value="All">All Status</option>
               <option value="Confirmed">Confirmed</option>
@@ -504,7 +504,7 @@ const Reservations = () => {
             <select
               value={filterRooms}
               onChange={(e) => setFilterRooms(e.target.value)}
-              className="border border-gray-300 rounded-lg pl-2 text-xs  w-[50%]"
+              className="w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm"
             >
               <option value="All">All Rooms</option>
               <option value="Standard">Standard</option>
@@ -514,7 +514,7 @@ const Reservations = () => {
             </select>
             <button
               onClick={exportReservations}
-              className="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-2 rounded-lg w-[30%]  "
+              className="w-full rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
             >
               Export Reservations
             </button>
@@ -524,8 +524,8 @@ const Reservations = () => {
         {/* View Reservation Modal */}
 
         {showViewModal && selectedReservation && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-            <div className="bg-white rounded-xl p-6 w-[50%]">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-xl max-h-[90dvh] overflow-y-auto rounded-xl bg-white p-5 sm:p-6">
               <h2 className="text-2xl font-bold mb-5">Reservation Details</h2>
 
               <p>
@@ -567,8 +567,8 @@ const Reservations = () => {
         {/* Edit Reservation Modal */}
 
         {showEditModal && selectedReservation && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-            <div className="bg-white rounded-xl p-6 w-[650px]">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-xl bg-white p-5 sm:p-6">
               <h2 className="text-2xl font-bold mb-5">Edit Reservation</h2>
 
               <input

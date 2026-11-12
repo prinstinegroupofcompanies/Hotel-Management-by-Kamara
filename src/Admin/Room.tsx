@@ -166,7 +166,7 @@ const Room = () => {
             placeholder="Search room number or category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-[150vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -238,8 +238,8 @@ const Room = () => {
               {/* View Modal popup */}
 
               {showViewModal && selectedRoom && (
-                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-                  <div className="bg-white p-6 rounded-lg w-[500px]">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                  <div className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-lg bg-white p-5 sm:p-6">
                     <h2 className="text-2xl font-bold mb-4">Room Details</h2>
 
                     <div className="space-y-3">
@@ -271,8 +271,8 @@ const Room = () => {
               {/* Add Room Modal popup */}
 
               {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-                  <div className="bg-white p-6 rounded-lg w-[600px] max-h-[90vh] overflow-auto">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                  <div className="w-full max-w-2xl max-h-[90dvh] overflow-auto rounded-lg bg-white p-5 sm:p-6">
                     <h2 className="text-2xl font-bold mb-4">Add Room</h2>
 
                     <form onSubmit={handleAddRoom} className="space-y-4">
@@ -413,8 +413,8 @@ const Room = () => {
               {/* Edit Modal popup */}
 
               {showEditModal && selectedRoom && (
-                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-                  <div className="bg-white p-6 rounded-lg w-[600px]">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                  <div className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-lg bg-white p-5 sm:p-6">
                     <h2 className="text-2xl font-bold mb-4">Edit Room</h2>
 
                     <form onSubmit={handleUpdateRoom} className="space-y-4">

@@ -151,8 +151,8 @@ const CheckInCheckout = () => {
       {/* View Modal popup*/}
 
       {showView && selectedGuest && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[500px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-lg bg-white p-5 sm:p-6">
             <h2 className="text-xl font-bold mb-4">Guest Details</h2>
 
             <p>{selectedGuest.guestName}</p>
@@ -173,8 +173,8 @@ const CheckInCheckout = () => {
       {/* Invoice Modal popup*/}
 
       {showInvoice && selectedGuest && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg w-[500px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-lg bg-white p-5 sm:p-8">
             <h2 className="text-2xl font-bold mb-4">Guest Invoice</h2>
 
             <p>

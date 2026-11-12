@@ -7,24 +7,46 @@ interface NavbarProps {
 
 const Navbar = ({ children }: NavbarProps) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className=" Navbar-element flex min-h-screen w-full">
+    <div className="Navbar-element flex min-h-screen w-full">
+      {menuOpen && (
+        <button
+          aria-label="Close navigation menu"
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
       {/* Sidebar */}
       <aside
-        className={`sticky top-0 h-screen flex flex-col bg-slate-900 text-white transition-all duration-300 ease-in-out ${collapsed ? "w-20" : "w-72"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen flex-col bg-slate-900 text-white transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:z-auto lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"} ${collapsed ? "w-72 lg:w-20" : "w-72"}`}
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-700">
           {!collapsed && (
-            <h1 className="text-xl font-bold">
+            <h1 className="text-lg font-bold sm:text-xl">
               {" "}
               Prinstine Group of Companies{" "}
             </h1>
           )}
-          <button onClick={() => setCollapsed(!collapsed)} className="text-xl">
+          <button
+            aria-label="Collapse navigation"
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden text-xl lg:block"
+          >
             ☰
           </button>
+          <button
+            aria-label="Close navigation menu"
+            onClick={() => setMenuOpen(false)}
+            className="text-xl lg:hidden"
+          >
+            ✕
+          </button>
         </div>
-        <nav className="mt-5 flex-1 overflow-y-auto pb-6">
+        <nav
+          className="mt-5 flex-1 overflow-y-auto pb-6"
+          onClick={() => setMenuOpen(false)}
+        >
           <ul className="space-y-2 px-3">
             <li>
               <Link
@@ -144,7 +166,21 @@ const Navbar = ({ children }: NavbarProps) => {
           </ul>
         </nav>
       </aside>
-      <main className="flex-1 bg-gray-100 p-6">{children}</main>
+      <main className="min-w-0 flex-1 bg-gray-100 p-3 sm:p-5 lg:p-6">
+        <div className="mb-5 flex items-center gap-3 lg:hidden">
+          <button
+            aria-label="Open navigation menu"
+            onClick={() => setMenuOpen(true)}
+            className="rounded-lg bg-slate-900 px-3 py-2 text-lg text-white"
+          >
+            ☰
+          </button>
+          <span className="truncate font-semibold text-slate-800">
+            Prinstine Hotel Management
+          </span>
+        </div>
+        {children}
+      </main>
     </div>
   );
 };

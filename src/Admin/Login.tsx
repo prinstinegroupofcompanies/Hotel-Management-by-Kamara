@@ -42,8 +42,8 @@ const Login = () => {
       </div>
 
       {/* Right Side */}
-      <div className="w-full lg:w-1/2 flex justify-center items-center bg-gray-100">
-        <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md">
+      <div className="w-full lg:w-1/2 flex justify-center items-center bg-gray-100 p-4 sm:p-6">
+        <div className="bg-white shadow-xl rounded-2xl p-6 sm:p-10 w-full max-w-md">
           <h2 className="text-3xl font-bold text-center mb-2">Welcome Back</h2>
 
           <p className="text-center text-gray-500 mb-8">Sign in to continue</p>
